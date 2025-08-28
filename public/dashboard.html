@@ -5,48 +5,137 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard - Gamified Farming</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ===========================
+       Chatbot Widget
+    ============================ */
+    #chatbot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      max-height: 400px;
+      background: rgba(0,0,0,0.85);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    #chatbot-header {
+      background: #2e7d32;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-weight: 600;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    #chat-window {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #chat-window .message {
+      padding: 8px 12px;
+      border-radius: 10px;
+      max-width: 75%;
+      word-wrap: break-word;
+    }
+    #chat-window .user {
+      background: #4caf50;
+      color: #fff;
+      align-self: flex-end;
+    }
+    #chat-window .bot {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      align-self: flex-start;
+    }
+    #chat-input-container {
+      display: flex;
+      padding: 5px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      gap: 5px;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 14px;
+    }
+    #chat-input::placeholder { color: rgba(255,255,255,0.6); }
+    #chat-send, #voice-btn {
+      padding: 8px 12px;
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    #chat-send:hover, #voice-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+    @media screen and (max-width: 450px) {
+      #chatbot { width: 90%; right: 5%; bottom: 10px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- <video autoplay muted loop id="bgVideo">
-  <source src="5" type="video/mp4">
-  Your browser does not support HTML5 video.
-</video> -->
 <div class="dashboard-page">
-
-    
-    <div class="container">
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 id="welcomeTxt">Welcome</h2>
-                <button id="logoutBtn" class="small">Logout</button>
-            </div>
-            <p>Reward Points: <span id="pointsDisplay">0</span> ⭐</p>
-            
-            <div class="progressRow">
-                <label>Progress</label>
-                <progress id="taskProgress" value="0" max="100"></progress>
-                <span id="progressText">0%</span>
-            </div>
-            
-            <div id="taskSection">
-                <h3>Current Task</h3>
-                <p id="taskText">Loading...</p>
-                <input type="file" id="taskPhoto" accept="image/*" />
-                <button id="submitPhotoBtn">Submit Photo & Complete</button>
-            </div>
-            
-            <div id="finishedMsg" style="display:none;">
-                <h3>All tasks completed 🎉</h3>
-                <p>Great job — you've completed all farm tasks!</p>
-            </div>
-            
-            <hr/>
-            <h4>Completed Tasks</h4>
-            <ul id="completedList"></ul>
-        </div>
-    </div>
+  <div class="container">
+      <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 id="welcomeTxt">Welcome</h2>
+              <button id="logoutBtn" class="small">Logout</button>
+          </div>
+          <p>Reward Points: <span id="pointsDisplay">0</span> ⭐</p>
+          
+          <div class="progressRow">
+              <label>Progress</label>
+              <progress id="taskProgress" value="0" max="100"></progress>
+              <span id="progressText">0%</span>
+          </div>
+          
+          <div id="taskSection">
+              <h3>Current Task</h3>
+              <p id="taskText">Loading...</p>
+              <input type="file" id="taskPhoto" accept="image/*" />
+              <button id="submitPhotoBtn">Submit Photo & Complete</button>
+          </div>
+          
+          <div id="finishedMsg" style="display:none;">
+              <h3>All tasks completed 🎉</h3>
+              <p>Great job — you've completed all farm tasks!</p>
+          </div>
+          
+          <hr/>
+          <h4>Completed Tasks</h4>
+          <ul id="completedList"></ul>
+      </div>
+  </div>
 </div>
-    
-    <script src="dashboard.js"></script>
+
+<!-- Chatbot widget -->
+<div id="chatbot">
+  <div id="chatbot-header">AgriBot</div>
+  <div id="chat-window"></div>
+  <div id="chat-input-container">
+    <input type="text" id="chat-input" placeholder="Ask me..." />
+    <button id="voice-btn">🎤</button>
+    <button id="chat-send">Send</button>
+  </div>
+</div>
+
+<script src="dashboard.js"></script>
+<script src="chatbot.js"></script>
 </body>
 </html>
