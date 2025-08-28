@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - Gamified Farming</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- <video autoplay muted loop id="bgVideo">
+  <source src="5" type="video/mp4">
+  Your browser does not support HTML5 video.
+</video> -->
+<div class="dashboard-page">
+
+    
+    <div class="container">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="welcomeTxt">Welcome</h2>
+                <button id="logoutBtn" class="small">Logout</button>
+            </div>
+            <p>Reward Points: <span id="pointsDisplay">0</span> ⭐</p>
+            
+            <div class="progressRow">
+                <label>Progress</label>
+                <progress id="taskProgress" value="0" max="100"></progress>
+                <span id="progressText">0%</span>
+            </div>
+            
+            <div id="taskSection">
+                <h3>Current Task</h3>
+                <p id="taskText">Loading...</p>
+                <input type="file" id="taskPhoto" accept="image/*" />
+                <button id="submitPhotoBtn">Submit Photo & Complete</button>
+            </div>
+            
+            <div id="finishedMsg" style="display:none;">
+                <h3>All tasks completed 🎉</h3>
+                <p>Great job — you've completed all farm tasks!</p>
+            </div>
+            
+            <hr/>
+            <h4>Completed Tasks</h4>
+            <ul id="completedList"></ul>
+        </div>
+    </div>
+</div>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>
