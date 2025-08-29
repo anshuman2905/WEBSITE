@@ -49,7 +49,8 @@ body::before {
    Container & Card
 =========================== */
 .container {
-  width: 500px;
+  width: 1000px;
+  /* height: 200px; */
   padding: 20px;
   z-index: 1;
   position: relative;
@@ -63,6 +64,8 @@ body::before {
   box-shadow: 0 20px 40px var(--shadow);
   position: relative;
   animation: floatCard 3s ease-in-out infinite alternate;
+  height: 200px;
+  font-size: 35px;
 }
 
 @keyframes floatCard {

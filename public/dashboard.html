@@ -6,9 +6,40 @@
   <title>Dashboard - Gamified Farming</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ===========================
+    body {
+      background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* ========================
+       Dashboard Container
+    ========================= */
+    .dashboard-page {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 0;
+    }
+    .container {
+      width: 90%;           /* Increase width */
+      max-width: 1200px;    /* Allow bigger layout on desktop */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container .card {
+      background: #110909;
+      border-radius: 16px;
+      padding: 30px;        /* More padding */
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      min-height: 700px; 
+      min-width: 900px;   /* Increase height */
+    }
+
+    /* ============================
        Chatbot Widget
-    ============================ */
+    ============================= */
     #chatbot {
       position: fixed;
       bottom: 20px;
@@ -19,7 +50,6 @@
       border-radius: 12px;
       display: flex;
       flex-direction: column;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       z-index: 1000;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
@@ -86,41 +116,43 @@
 
     @media screen and (max-width: 450px) {
       #chatbot { width: 90%; right: 5%; bottom: 10px; }
+      .container { width: 95%; }
     }
   </style>
 </head>
 <body>
+
 <div class="dashboard-page">
   <div class="container">
-      <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-              <h2 id="welcomeTxt">Welcome</h2>
-              <button id="logoutBtn" class="small">Logout</button>
-          </div>
-          <p>Reward Points: <span id="pointsDisplay">0</span> ⭐</p>
-          
-          <div class="progressRow">
-              <label>Progress</label>
-              <progress id="taskProgress" value="0" max="100"></progress>
-              <span id="progressText">0%</span>
-          </div>
-          
-          <div id="taskSection">
-              <h3>Current Task</h3>
-              <p id="taskText">Loading...</p>
-              <input type="file" id="taskPhoto" accept="image/*" />
-              <button id="submitPhotoBtn">Submit Photo & Complete</button>
-          </div>
-          
-          <div id="finishedMsg" style="display:none;">
-              <h3>All tasks completed 🎉</h3>
-              <p>Great job — you've completed all farm tasks!</p>
-          </div>
-          
-          <hr/>
-          <h4>Completed Tasks</h4>
-          <ul id="completedList"></ul>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="welcomeTxt">Welcome</h2>
+        <button id="logoutBtn" class="small"></button>
       </div>
+      <p>Reward Points: <span id="pointsDisplay">0</span> ⭐</p>
+      
+      <div class="progressRow">
+        <label>Progress</label>
+        <progress id="taskProgress" value="0" max="100"></progress>
+        <span id="progressText">0%</span>
+      </div>
+      
+      <div id="taskSection">
+        <h3>Current Task</h3>
+        <p id="taskText">Loading...</p>
+        <input type="file" id="taskPhoto" accept="image/*" />
+        <button id="submitPhotoBtn">Submit Photo & Complete</button>
+      </div>
+      
+      <div id="finishedMsg" style="display:none;">
+        <h3>All tasks completed 🎉</h3>
+        <p>Great job — you've completed all farm tasks!</p>
+      </div>
+      
+      <hr/>
+      <h4>Completed Tasks</h4>
+      <ul id="completedList"></ul>
+    </div>
   </div>
 </div>
 

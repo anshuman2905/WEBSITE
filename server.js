@@ -24,7 +24,7 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 // serve frontend static files from public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Tasks list (server-side source of truth)
+
 const TASKS = [
   "Plant seeds in your farm",
   "Water your crops",

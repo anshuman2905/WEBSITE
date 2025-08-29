@@ -71,9 +71,9 @@
     }
 
     .logo img {
-      height: 100px;
-      max-width: 100px;
-      object-fit: contain;
+      height: 120px;
+      width: 150px;
+      margin-top: 20px;
     }
 
     .top-right {
@@ -87,7 +87,7 @@
       border: none;
       border-radius: 25px;
       cursor: pointer;
-      background: linear-gradient(90deg, #a8e063, #56ab2f);
+      background: linear-gradient(90deg, #182b01, #56ab2f);
       color: white;
       font-weight: 600;
       letter-spacing: 1px;
@@ -99,14 +99,15 @@
     }
     .btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(168,224,99,0.7);
+      box-shadow: 0 0 15px rgba(57, 91, 16, 0.7);
     }
 
     .content {
+      width: 80%;
       position: absolute;
-      top: 20%;
+      top: 50%; /* vertical centering */
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       text-align: center;
       color: white;
       z-index: 2;
@@ -116,15 +117,17 @@
     }
 
     h1 {
-      font-size: 5rem;
+      margin: -220px 0 100px 0; /* extra bottom space */
+      font-size: 7rem;
       letter-spacing: 4px;
       text-transform: uppercase;
-      margin: 0 0 20px 0;
-      background: linear-gradient(270deg, #a8e063, #56ab2f, #a8e063);
+      /* background: linear-gradient(270deg, #a8e063, #56ab2f, #a8e063); */
+      background: linear-gradient(to bottom right, #527023, #1f485c);
       background-size: 600% 600%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       animation: gradientFlow 6s ease infinite;
+      line-height: 1;
     }
 
     @keyframes gradientFlow {
@@ -134,19 +137,22 @@
     }
 
     .tagline-en {
-      font-size: 1.6rem;
-      margin: 10px 0 5px 0;
-      color: #fff;
+      font-size: 4rem;
+      margin-top: -222px;
+      margin: 100px 0 15px 0; /* spacing between taglines */
+      color: #611010;
       opacity: 0;
       animation: fadeInUp 0.6s ease forwards;
       animation-delay: 2s;
+      /* padding: 200px; */
     }
 
     .tagline-hi {
-      font-size: 2rem;
-      margin: 5px 0 0 0;
+      font-size: 4rem;
+      margin: 0;
+      margin-top: 20px;
       font-family: "Noto Sans Devanagari", sans-serif;
-      color: #ffd700;
+      color: #39160b;
       text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 20px #ff8c00;
       opacity: 0;
       animation: glowText 1s ease forwards, fadeInUp 0.6s ease forwards;
@@ -176,7 +182,7 @@
 <body>
 
   <video autoplay muted loop id="bg-video">
-    <source src="/public/5221242-hd_1920_1080_30fps.mp4" type="video/mp4">
+    <source src="5221242-hd_1920_1080_30fps.mp4" type="video/mp4">
     Your browser does not support HTML5 video.
   </video>
 
@@ -191,14 +197,13 @@
       <img src="Screenshot_2025-08-29_092552-removebg-preview.png" alt="NAVDHARA Logo">
     </div>
     <div class="top-right">
-      <a href="http://localhost:3000/" class="btn">Login</a>
-      <a href="http://localhost:3000/" class="btn">Sign Up</a>
-    </div>
+      <a href="http://localhost:3000/" class="btn">Login/SignUp</a>
+    </div>  
   </div>
 
   <div class="content">
     <h1>NAVDHARA</h1>
-    <p class="tagline-en">Where technology meets innovation</p>
+    <p class="tagline-en">Where Technology Meets Innovation</p>
     <p class="tagline-hi">डिजिटल प्रगति का प्रवाह</p>
   </div>
 

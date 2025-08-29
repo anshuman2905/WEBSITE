@@ -54,7 +54,7 @@ signupForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     if (!res.ok) return alert(data.message || 'Signup failed');
     localStorage.setItem('token', data.token);
-    window.location.href = '/dashboard.html';
+    window.location.href = '/home.html';
   } catch (err) {
     console.error(err);
     alert('Signup error');
@@ -77,7 +77,7 @@ signinForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     if (!res.ok) return alert(data.message || 'Signin failed');
     localStorage.setItem('token', data.token);
-    window.location.href = '/dashboard.html';
+    window.location.href = '/home.html';
   } catch (err) {
     console.error(err);
     alert('Signin error');

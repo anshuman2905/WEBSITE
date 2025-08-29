@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAVDHARA - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 80px;
+      background: #165831;
+      color: white;
+      position: relative;
+    }
+
+    /* Enhanced NAVDHARA text */
+    header h1 {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) perspective(500px) rotateX(10deg);
+      margin: 0;
+      font-size: 49px;
+      letter-spacing: 1.5px;
+      font-weight: bold;
+      color: #e0cb0f;
+      text-shadow: 
+        1px 1px 0px #0a4a35,
+        2px 2px 0px #083927,
+        3px 3px 2px rgba(0,0,0,0.6);
+    }
+
+    header img.logo {
+      height: 70px;
+      width: auto;
+    }
+
+    /* New Welcome text */
+    .welcome-text {
+      margin-right: 16px;
+      font-size: 18px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    header button {
+      background: #ffffff33;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      white-space: nowrap;
+    }
+    header button:hover {
+      background: #ffffff55;
+    }
+
+    .slideshow-container {
+      position: relative;
+      width: 100%;
+      height: 50vh;
+      overflow: hidden;
+    }
+    .slideshow-container img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .slideshow-container img.active {
+      opacity: 1;
+    }
+
+    .dashboard {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+    }
+
+    .dashboard a{
+        text-decoration: none;
+        color: #000000;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
+    .card p {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 26px;
+      }
+      header img.logo {
+        height: 40px;
+      }
+      .welcome-text {
+        font-size: 14px;
+      }
+      .card img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="Screenshot_2025-08-29_092552-removebg-preview.png" alt="Logo" class="logo">
+    <h1>NAVDHARA</h1>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="welcome-text">Welcome User!</div>
+      <button onclick="goToProfile()">My Profile</button>
+    </div>
+  </header>
+
+  <div class="slideshow-container">
+    <img src="https://picsum.photos/1200/600?random=1" class="active" alt="Slide 1">
+    <img src="https://picsum.photos/1200/600?random=2" alt="Slide 2">
+    <img src="https://picsum.photos/1200/600?random=3" alt="Slide 3">
+    <img src="https://picsum.photos/1200/600?random=4" alt="Slide 4">
+    <img src="https://picsum.photos/1200/600?random=5" alt="Slide 5">
+    <img src="https://picsum.photos/1200/600?random=6" alt="Slide 6">
+    <img src="https://picsum.photos/1200/600?random=7" alt="Slide 7">
+  </div>
+
+  <main class="dashboard">
+    <a href="categories.html" class="card">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoyi3tSOn1IGKtLJYqnHSN4WH48s3HQB_DOQ&s" alt="Categories">
+      <p>Categories</p>
+    </a>
+
+    <div class="card" onclick="goTo('settings')">
+      <img src="https://img.icons8.com/color/96/settings.png" alt="Settings">
+      <p>Settings</p>
+    </div>
+
+    <div class="card" onclick="goTo('rewards')">
+      <img src="https://img.icons8.com/color/96/medal.png" alt="Rewards">
+      <p>Rewards</p>
+    </div>
+
+    <div class="card" onclick="goTo('leaderboard')">
+      <img src="https://img.icons8.com/color/96/leaderboard.png" alt="Leaderboard">
+      <p>Leaderboard</p>
+    </div>
+
+    <div class="card" onclick="goTo('mycommunity')">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYrA5FeyHqG0r7QEGQDNwEMPgaszW8IiZXtg&s" alt="MyCommunity">
+      <p>MyCommunity</p>
+    </div> 
+
+    <div class="card" id="farm-progress" onclick="goTo('farm-progress')">
+      <img src="https://www.shutterstock.com/image-illustration/rising-bar-graph-260nw-159340967.jpg" alt="Farm Progress">
+      <p>Farm Progress</p>
+    </div>
+
+    <div class="card" onclick="goTo('notifications')">
+      <img src="https://img.icons8.com/color/96/appointment-reminders.png" alt="Notifications">
+      <p>Notifications</p>
+    </div>
+
+    <div class="card" onclick="goTo('need-help')">
+      <img src="https://img.icons8.com/color/96/help.png" alt="Need Help">
+      <p>Need Help</p>
+    </div>
+
+    <div class="card" onclick="goTo('layout')">
+      <img src="https://img.icons8.com/color/96/blueprint.png" alt="3D Layout">
+      <p>3D Layout</p>
+    </div>
+
+    <div class="card" onclick="goTo('techniques')">
+      <img src="https://img.icons8.com/color/96/plant-under-sun.png" alt="Techniques">
+      <p>Farming Techniques</p>
+    </div>
+
+    <a href="dashboard.html" class="card" >
+    <img src="https://img.icons8.com/color/96/to-do.png" alt="Tasks">
+    <p>My Tasks</p>
+    </a>
+
+
+<a class="card" href="k.html">
+  <img src="https://img.icons8.com/color/96/logout-rounded.png" alt="Log Out">
+  <p>Log Out</p>
+</a>
+
+  </main>
+
+  <footer>
+    © 2025 NAVDHARA Farming Platform – All Rights Reserved.
+  </footer>
+
+  <script>
+    function goToProfile() {
+      alert("Going to My Profile...");
+    }
+    function goTo(page) {
+      alert("Navigating to " + page + "...");
+    }
+
+    let slides = document.querySelectorAll(".slideshow-container img");
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+    }, 2000);
+  </script>
+
+</body>
+</html>
