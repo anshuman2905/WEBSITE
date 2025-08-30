@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Settings</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+             background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent overflow */
+        }
+        
+        .settings-container {
+            background: #fff;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            max-height: 100vh;
+            overflow-y: auto; /* Allow vertical scrolling if needed */
+            transition: transform 0.3s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .settings-container:hover {
+            transform: scale(1.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #333;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        .switch {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        .switch:focus {
+            border-color: #4CAF50;
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .switch {
+            width: 60px;
+            height: 30px;
+            position: relative;
+            background-color: #ddd;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            transform: translateX(30px);
+            background-color: #4CAF50;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-title {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .effect-button {
+            position: relative;
+            background-color: #4CAF50;
+            padding: 14px 24px;
+            color: white;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: 0.3s;
+            outline: none;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .effect-button:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease-out;
+        }
+
+        .effect-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .effect-button:hover:after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* New Field Styles */
+        .farm-size {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .farm-size input {
+            width: 80%;
+        }
+
+        .temperature-range input {
+            width: 80%;
+        }
+
+        .farm-size label, .temperature-range label {
+            font-size: 1.1em;
+            color: #333;
+            letter-spacing: 0.5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="settings-container">
+        <h2>Farm Settings</h2>
+        <p class="settings-title">Adjust your farming settings below:</p>
+        
+        <form action="#">
+            <!-- Farm Name -->
+            <div class="form-group">
+                <label for="farmName">Farm Name</label>
+                <input type="text" id="farmName" placeholder="Enter farm name">
+            </div>
+
+            <!-- Crop Type -->
+            <div class="form-group">
+                <label for="cropType">Crop Type</label>
+                <select id="cropType">
+                    <option value="wheat">Wheat</option>
+                    <option value="corn">Corn</option>
+                    <option value="rice">Rice</option>
+                    <option value="soybean">Soybean</option>
+                    <option value="potato">Potato</option>
+                </select>
+            </div>
+
+            <!-- Farm Size -->
+            <div class="form-group farm-size">
+                <label for="farmSize">Farm Size (Acres)</label>
+                <input type="number" id="farmSize" placeholder="Enter size in acres" min="1">
+            </div>
+
+            <!-- Watering Schedule -->
+            <div class="form-group">
+                <label for="wateringSchedule">Watering Schedule (Days per week)</label>
+                <input type="number" id="wateringSchedule" placeholder="Enter number of days" min="1" max="7">
+            </div>
+
+            <!-- Fertilizer Usage -->
+            <div class="form-group">
+                <label for="fertilizerUsage">Fertilizer Usage (kg per month)</label>
+                <input type="number" id="fertilizerUsage" placeholder="Enter fertilizer usage" min="0">
+            </div>
+
+            <!-- Temperature Range -->
+            <div class="form-group temperature-range">
+                <label for="temperatureRange">Preferred Temperature Range (°C)</label>
+                <input type="text" id="temperatureRange" placeholder="e.g., 20-30°C">
+            </div>
+
+            <!-- Climate Type -->
+            <div class="form-group">
+                <label for="climateType">Climate Type</label>
+                <select id="climateType">
+                    <option value="tropical">Tropical</option>
+                    <option value="temperate">Temperate</option>
+                    <option value="arid">Arid</option>
+                    <option value="mediterranean">Mediterranean</option>
+                </select>
+            </div>
+
+            <!-- Disease Alerts Toggle -->
+            <div class="form-group">
+                <label for="diseaseAlerts">Enable Disease Alerts</label>
+                <label class="switch">
+                    <input type="checkbox" id="diseaseAlerts">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <input type="submit" value="Save Settings" onclick="saveSettings()">
+
+        </form>
+
+    </div>
+
+    <script>
+        function saveSettings() {
+            alert("Saved Successfully");
+        }
+    </script>
+
+</body>
+</html>

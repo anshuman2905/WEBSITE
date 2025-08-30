@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Community</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+             background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #4caf50, #5dcf8a, #388e3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            font-family: 'Georgia', 'Palatino', serif;
+        }
+
+        .community-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .member-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fefffd;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+        }
+
+        .member-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .member-locality {
+            font-size: 1.5em;
+            color: #352525;
+        }
+
+        .contact-btn {
+            padding: 8px 15px;
+            background-color: #2e7d32;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .contact-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        @media (max-width: 600px) {
+            .member-card {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .contact-btn {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Farming Community</h1>
+    <div class="community-container">
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Rajesh Kumar</div>
+                <div class="member-locality">Punjab</div>
+            </div>
+            <a href="mailto:rajesh@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Pintu Yadav</div>
+                <div class="member-locality">Bihar</div>
+            </div>
+            <a href="mailto:pintu@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Ramesh Singh</div>
+                <div class="member-locality">Uttar Pradesh</div>
+            </div>
+            <a href="mailto:ramesh@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Suresh Patel</div>
+                <div class="member-locality">Gujarat</div>
+            </div>
+            <a href="mailto:suresh@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Mahesh Sharma</div>
+                <div class="member-locality">Rajasthan</div>
+            </div>
+            <a href="mailto:mahesh@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Anil Kumar</div>
+                <div class="member-locality">Haryana</div>
+            </div>
+            <a href="mailto:anil@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Vikram Singh</div>
+                <div class="member-locality">Madhya Pradesh</div>
+            </div>
+            <a href="mailto:vikram@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Ravi Kumar</div>
+                <div class="member-locality">Tamil Nadu</div>
+            </div>
+            <a href="mailto:ravi@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Ajay Yadav</div>
+                <div class="member-locality">Bihar</div>
+            </div>
+            <a href="mailto:ajay@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Sunil Kumar</div>
+                <div class="member-locality">Uttarakhand</div>
+            </div>
+            <a href="mailto:sunil@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Prakash Singh</div>
+                <div class="member-locality">Himachal Pradesh</div>
+            </div>
+            <a href="mailto:prakash@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Manoj Kumar</div>
+                <div class="member-locality">Karnataka</div>
+            </div>
+            <a href="mailto:manoj@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Raghav Yadav</div>
+                <div class="member-locality">Jharkhand</div>
+            </div>
+            <a href="mailto:raghav@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Deepak Sharma</div>
+                <div class="member-locality">Rajasthan</div>
+            </div>
+            <a href="mailto:deepak@example.com" class="contact-btn">Contact</a>
+        </div>
+
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">Rohit Kumar</div>
+                <div class="member-locality">Punjab</div>
+            </div>
+            <a href="mailto:rohit@example.com" class="contact-btn">Contact</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Rewards</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+       background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    .reward-section {
+      background: #fff;
+      border-radius: 20px;
+      padding: 50px;
+      width: 500px; /* Increased width */
+      height: 750px; /* Increased height */
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      position: relative;
+    }
+
+    .reward-header {
+      font-size: 50px; /* Increased font size */
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #4CAF50;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 30px; /* Increased height */
+      background: #d3e6d0;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(135deg, #ff9f00, #ff6f00);
+      border-radius: 15px;
+      width: 0;
+      transition: width 0.5s ease;
+    }
+
+    .progress-text {
+      font-size: 18px;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    .level-info {
+      margin-bottom: 40px;
+      text-align: left;
+    }
+
+    .level-title {
+      font-size: 22px; /* Increased font size */
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .points-text {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .next-level {
+      font-size: 20px; /* Increased font size */
+      font-weight: 500;
+      margin-top: 15px;
+      color: #4CAF50;
+    }
+
+    .offers {
+      margin-top: 20px;
+      font-size: 18px; /* Increased font size */
+      color: #444;
+    }
+
+    .offer {
+      margin: 12px 0;
+      font-weight: bold;
+      color: #FF5722;
+    }
+
+    .earn-points-btn {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 30px; /* Increased padding */
+      border: none;
+      border-radius: 30px;
+      font-size: 20px; /* Increased font size */
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 30px;
+    }
+
+    .earn-points-btn:hover {
+      background-color: #45a049;
+    }
+
+    .level-badge {
+      background-color: #FFEB3B;
+      border-radius: 50%;
+      padding: 15px 25px; /* Increased padding */
+      font-size: 22px; /* Increased font size */
+      font-weight: 600;
+      margin-top: 20px;
+      color: #333;
+      display: inline-block;
+      width: 180px;
+      text-align: center;
+      margin-bottom: 20px ;
+    }
+
+    .offer-box {
+      background: #f1f1f1;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .offer-box p {
+      font-size: 18px; /* Increased font size */
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="reward-section">
+    <h1 class="reward-header">Farmer Rewards</h1>
+    <div class="level-badge" id="level-badge">Beginner</div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="level-info">
+      <p class="level-title">Current Level: <span id="level-text">Beginner Farmer</span></p>
+      <p class="points-text">Points Earned: <span id="points-text">0</span></p>
+      <p class="next-level" id="next-level">Next Level: Expert Farmer (100 points required)</p>
+    </div>
+
+    <div class="offer-box">
+      <h3>Exclusive Offers:</h3>
+      <div class="offers">
+        <div class="offer" id="offer1">10% Off on Tools</div>
+        <div class="offer" id="offer2">20% Off on Seeds</div>
+        <div class="offer" id="offer3">30% Off on Fertilizers</div>
+      </div>
+    </div>
+
+    <div class="earn-points-btn" onclick="earnPoints()">Earn Points</div>
+    <p class="progress-text" id="progress-text">Keep earning to unlock more rewards!</p>
+
+    
+  </div>
+
+  <script>
+    let points = 0;
+    let currentLevel = 'Novice Farmer';
+    let nextLevel = 'Expert Farmer';
+    let pointsRequired = 100;
+
+    const levelText = document.getElementById('level-text');
+    const pointsText = document.getElementById('points-text');
+    const progressBar = document.getElementById('progress-bar');
+    const nextLevelText = document.getElementById('next-level');
+    const offer1 = document.getElementById('offer1');
+    const offer2 = document.getElementById('offer2');
+    const offer3 = document.getElementById('offer3');
+    const levelBadge = document.getElementById('level-badge');
+
+    function earnPoints() {
+      points += 25; // Increment points by 25 on each button press
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const progressPercentage = Math.min((points / pointsRequired) * 100, 100);
+      progressBar.style.width = progressPercentage + '%';
+      pointsText.textContent = points;
+      
+      if (points < 100) {
+        currentLevel = 'Beginner Farmer';
+        nextLevel = 'Expert Farmer';
+        pointsRequired = 100;
+        updateLevel('Novice');
+      } else if (points >= 100 && points < 500) {
+        currentLevel = 'Expert Farmer';
+        nextLevel = 'Master Farmer';
+        pointsRequired = 500;
+        updateLevel('Expert');
+      } else {
+        currentLevel = 'Master Farmer';
+        nextLevel = 'Maxed';
+        pointsRequired = 0;
+        updateLevel('Master');
+      }
+
+      levelText.textContent = currentLevel;
+      nextLevelText.textContent = `Next Level: ${nextLevel} (${pointsRequired - points} points required)`;
+      
+      // Offer Changes
+      if (points >= 100) {
+        offer1.textContent = '20% Off on Tools';
+        offer2.textContent = '25% Off on Seeds';
+        offer3.textContent = '30% Off on Fertilizers';
+      }
+      if (points >= 500) {
+        offer1.textContent = '30% Off on Tools';
+        offer2.textContent = '40% Off on Seeds';
+        offer3.textContent = '50% Off on Fertilizers';
+      }
+    }
+
+    function updateLevel(level) {
+      if (level === 'Beginner ') {
+        levelBadge.textContent = 'Beginner ';
+        levelBadge.style.backgroundColor = '#FFEB3B';
+      } else if (level === 'Expert') {
+        levelBadge.textContent = 'Expert';
+        levelBadge.style.backgroundColor = '#FF9800';
+      } else if (level === 'Master') {
+        levelBadge.textContent = 'Master';
+        levelBadge.style.backgroundColor = '#FF5722';
+      }
+    }
+  </script>
+</body>
+</html>

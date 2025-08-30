@@ -53,7 +53,7 @@
       white-space: nowrap;
     }
 
-    header button {
+    header a {
       background: #ffffff33;
       border: none;
       padding: 10px 18px;
@@ -63,9 +63,10 @@
       cursor: pointer;
       transition: background 0.3s ease;
       white-space: nowrap;
+      text-decoration: none;
     }
-    header button:hover {
-      background: #ffffff55;
+    header a:hover {
+      background: #56313155;
     }
 
     .slideshow-container {
@@ -157,7 +158,7 @@
     <h1>NAVDHARA</h1>
     <div style="display:flex; align-items:center; gap:12px;">
       <div class="welcome-text">Welcome User!</div>
-      <button onclick="goToProfile()">My Profile</button>
+      <a href="myprofile.html" class="profile-link">My Profile</a>
     </div>
   </header>
 
@@ -170,68 +171,76 @@
     <img src="https://picsum.photos/1200/600?random=6" alt="Slide 6">
     <img src="https://picsum.photos/1200/600?random=7" alt="Slide 7">
   </div>
-
+  
   <main class="dashboard">
+    
+    
+    <a href="dashboard.html" class="card" >
+      <img src="https://img.icons8.com/color/96/to-do.png" alt="Tasks">
+      <p>My Tasks</p>
+    </a>
+    
+    <a href="rewards.html" class="card">
+      <img src="https://img.icons8.com/color/96/medal.png" alt="Rewards">
+      <p>Rewards</p>
+    </a>
+    
+    <a href="farm-progress.html" class="card">
+      <img src="https://www.shutterstock.com/image-illustration/rising-bar-graph-260nw-159340967.jpg" alt="Farm Progress">
+      <p>Farm Progress</p>
+    </a>
+
+
     <a href="categories.html" class="card">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoyi3tSOn1IGKtLJYqnHSN4WH48s3HQB_DOQ&s" alt="Categories">
       <p>Categories</p>
     </a>
 
-    <div class="card" onclick="goTo('settings')">
-      <img src="https://img.icons8.com/color/96/settings.png" alt="Settings">
-      <p>Settings</p>
-    </div>
-
-    <div class="card" onclick="goTo('rewards')">
-      <img src="https://img.icons8.com/color/96/medal.png" alt="Rewards">
-      <p>Rewards</p>
-    </div>
-
-    <div class="card" onclick="goTo('leaderboard')">
+    
+    
+    <a href="leaderboard.html" class="card">
       <img src="https://img.icons8.com/color/96/leaderboard.png" alt="Leaderboard">
       <p>Leaderboard</p>
-    </div>
-
-    <div class="card" onclick="goTo('mycommunity')">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYrA5FeyHqG0r7QEGQDNwEMPgaszW8IiZXtg&s" alt="MyCommunity">
-      <p>MyCommunity</p>
-    </div> 
-
-    <div class="card" id="farm-progress" onclick="goTo('farm-progress')">
-      <img src="https://www.shutterstock.com/image-illustration/rising-bar-graph-260nw-159340967.jpg" alt="Farm Progress">
-      <p>Farm Progress</p>
-    </div>
-
-    <div class="card" onclick="goTo('notifications')">
-      <img src="https://img.icons8.com/color/96/appointment-reminders.png" alt="Notifications">
-      <p>Notifications</p>
-    </div>
-
-    <div class="card" onclick="goTo('need-help')">
-      <img src="https://img.icons8.com/color/96/help.png" alt="Need Help">
-      <p>Need Help</p>
-    </div>
-
-    <div class="card" onclick="goTo('layout')">
-      <img src="https://img.icons8.com/color/96/blueprint.png" alt="3D Layout">
-      <p>3D Layout</p>
-    </div>
-
-    <div class="card" onclick="goTo('techniques')">
+    </a>
+    
+    <a href="farmingT.html" class="card">
       <img src="https://img.icons8.com/color/96/plant-under-sun.png" alt="Techniques">
       <p>Farming Techniques</p>
-    </div>
+    </a>
 
-    <a href="dashboard.html" class="card" >
-    <img src="https://img.icons8.com/color/96/to-do.png" alt="Tasks">
-    <p>My Tasks</p>
+    
+    <a href="community.html" class="card">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYrA5FeyHqG0r7QEGQDNwEMPgaszW8IiZXtg&s" alt="MyCommunity">
+      <p>MyCommunity</p>
+    </a> 
+    
+    <a href="3dlayout.html" class="card">
+      <img src="https://img.icons8.com/color/96/blueprint.png" alt="3D Layout">
+      <p>3D Layout</p>
+    </a>
+    
+    <a href="notification.html" class="card">
+      <img src="https://img.icons8.com/color/96/appointment-reminders.png" alt="Notifications">
+      <p>Notifications</p>
+    </a>
+    
+    <a href="setting.html" class="card">
+      <img src="https://img.icons8.com/color/96/settings.png" alt="Settings">
+      <p>Settings</p>
+    </a>
+    
+    <a href="needhelp.html" class="card">
+      <img src="https://img.icons8.com/color/96/help.png" alt="Need Help">
+      <p>Need Help</p>
     </a>
 
 
-<a class="card" href="k.html">
-  <img src="https://img.icons8.com/color/96/logout-rounded.png" alt="Log Out">
-  <p>Log Out</p>
-</a>
+
+
+    <a class="card" href="k.html">
+    <img src="https://img.icons8.com/color/96/logout-rounded.png" alt="Log Out">
+    <p>Log Out</p>
+  </a>
 
   </main>
 

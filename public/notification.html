@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Notifications</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+             background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+            margin: 0;
+            padding: 0;
+        }
+        .notification-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .notification-header {
+            text-align: center;
+            font-size: 24px;
+            color: #2f6c4f;
+            margin-bottom: 20px;
+        }
+        .notification {
+            background-color: #e9f7ef;
+            color: #006400;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .notification img {
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+        }
+        .notification p {
+            margin: 0;
+            font-size: 16px;
+        }
+        .rainy {
+            background-color: #d1e7ff;
+            color: #0044cc;
+        }
+        .sunny {
+            background-color: #fff9e6;
+            color: #ff6600;
+        }
+        .new-task {
+            background-color: #fff0f0;
+            color: #d9534f;
+        }
+        .completed-task {
+            background-color: #d4edda;
+            color: #28a745;
+        }
+        .show-more-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .show-more-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="notification-container">
+        <div class="notification-header">Farming Notifications</div>
+        
+        <div class="notification rainy">
+            <img src="https://img.icons8.com/ios/50/000000/rain.png" alt="Rainy Weather">
+            <p>Rainy weather detected! Prepare your crops accordingly.</p>
+        </div>
+        
+        <div class="notification sunny">
+            <img src="https://img.icons8.com/ios/50/000000/sun.png" alt="Sunny Weather">
+            <p>Sunny weather ahead! Perfect for sowing seeds.</p>
+        </div>
+
+        <div class="notification new-task">
+            <img src="https://img.icons8.com/ios/50/000000/task.png" alt="New Task">
+            <p>New task unlocked: Harvest your crops! Keep track of your progress.</p>
+        </div>
+
+        <div class="notification completed-task">
+            <img src="https://cdn-icons-png.freepik.com/256/3669/3669845.png?semt=ais_white_label" alt="Task Completed">
+            <p>Congratulations! You have successfully completed a task: Fertilization.</p>
+        </div>
+
+        <div class="notification">
+            <img src="https://cdn-icons-png.flaticon.com/512/5447/5447063.png" alt="New Growth">
+            <p>Your crops are growing well. Keep an eye on them for pests!</p>
+        </div>
+
+        <div class="notification">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd9eb4P299ElLAGO6gsBFOC5mdIrRR80cwUA&s" alt="Greenhouse">
+            <p>Your greenhouse has been fully equipped. Start your plant cultivation process.</p>
+        </div>
+
+        <div class="notification">
+            <img src="https://img.icons8.com/ios/50/000000/calendar.png" alt="Season Update">
+            <p>Season update: It's time for planting rice. Ensure proper irrigation!</p>
+        </div>
+
+        <div class="notification">
+            <img src="https://img.icons8.com/ios/50/000000/watering-can.png" alt="Watering">
+            <p>Don't forget to water your crops. It's an essential step for growth.</p>
+        </div>
+
+        <button class="show-more-btn" onclick="loadMoreNotifications()">Show More Notifications</button>
+    </div>
+
+    <script>
+        function loadMoreNotifications() {
+            const newNotification = document.createElement('div');
+            newNotification.classList.add('notification');
+            newNotification.innerHTML = `
+                <img src="https://img.icons8.com/ios/50/000000/handshake.png" alt="Offer">
+                <p>Exclusive Offer: Get 20% off on farming equipment for the next 24 hours.</p>
+            `;
+            document.querySelector('.notification-container').appendChild(newNotification);
+        }
+    </script>
+
+</body>
+</html>

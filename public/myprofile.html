@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+             background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            width: 80%;
+            max-width: 1200px;
+            background: #43877b;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex: 1;
+        }
+
+        .user-photo img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ddd;
+            transition: transform 0.3s ease;
+        }
+
+        .user-photo img:hover {
+            transform: scale(1.1);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #fffafa;
+            /* font-size: 50rem; */
+        }
+
+        .user-name {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4d2727;
+        }
+
+        .user-location, .user-crop, .user-age, .user-designation, .user-level, .reward-points {
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+
+        .user-level {
+            font-weight: bold;
+            color: #FFC107;
+        }
+
+        .reward-points {
+            font-weight: bold;
+            color: #00BCD4;
+        }
+
+        .farm-details {
+            margin-top: 20px;
+        }
+
+        .farm-details h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .farm-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .farm-details li {
+            font-size: 1rem;
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .farm-details li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            color: #4CAF50;
+        }
+
+        /* Chart container */
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            max-width: 500px;
+            height: 350px;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #f7f7f7;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container p{
+            margin-top: 20px;
+            font-size: 25px;
+            color: rgb(90, 64, 31);
+        }
+    </style>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="user-photo">
+                <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="User Photo">
+            </div>
+            <div class="user-details">
+                <h2 class="user-name">MR. RAM SINGH</h2>
+                <p class="user-location">Location: Salempur, UP</p>
+                <p class="user-crop">Primary Crop: Corn</p>
+                <p class="user-age">Age: 17(MINOR)</p>
+                <p class="user-designation">Designation: Farmer</p>
+                <p class="user-level">Level: Beginner</p>
+                <p class="reward-points">Reward Points: 500</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="farmerChart"></canvas>
+            <p>PROGRESS REPORT</p>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js script to create the graph
+        const ctx = document.getElementById('farmerChart').getContext('2d');
+        const farmerChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                datasets: [{
+                    label: 'Harvest Data',
+                    data: [5, 7, 9, 11, 13, 15],
+                    backgroundColor: '#4CAF50',
+                    borderColor: '#4CAF50',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
