@@ -47,13 +47,13 @@
     }
 
     @keyframes logoIntro {
-      0% { opacity: 0; transform: scale(0.3);}
-      50% { opacity: 1; transform: scale(1.2);}
-      100% { opacity: 1; transform: scale(1);}
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
     @keyframes fadeOut {
-      to { opacity: 0; visibility: hidden;}
+      to { opacity: 0; visibility: hidden; }
     }
 
     .top-bar {
@@ -97,6 +97,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(57, 91, 16, 0.7);
@@ -121,7 +122,6 @@
       font-size: 7rem;
       letter-spacing: 4px;
       text-transform: uppercase;
-      /* background: linear-gradient(270deg, #a8e063, #56ab2f, #a8e063); */
       background: linear-gradient(to bottom right, #527023, #1f485c);
       background-size: 600% 600%;
       -webkit-background-clip: text;
@@ -131,9 +131,9 @@
     }
 
     @keyframes gradientFlow {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .tagline-en {
@@ -144,7 +144,6 @@
       opacity: 0;
       animation: fadeInUp 0.6s ease forwards;
       animation-delay: 2s;
-      /* padding: 200px; */
     }
 
     .tagline-hi {
@@ -160,22 +159,58 @@
     }
 
     @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-    @keyframes fadeInUp {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    @keyframes glowText {
-      0%,100% {text-shadow: 0 0 5px #ffd700,0 0 10px #ffd700,0 0 20px #ff8c00;}
-      50% {text-shadow: 0 0 15px #ffd700,0 0 25px #ff8c00,0 0 35px #ffa500;}
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    @media (max-width:768px){
-      h1 {font-size: 3.2rem;}
-      .tagline-en {font-size: 1.2rem;}
-      .tagline-hi {font-size: 1.6rem;}
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glowText {
+      0%,100% { text-shadow: 0 0 5px #ffd700,0 0 10px #ffd700,0 0 20px #ff8c00; }
+      50% { text-shadow: 0 0 15px #ffd700,0 0 25px #ff8c00,0 0 35px #ffa500; }
+    }
+
+    /* New Creators Section - Horizontal at the Bottom */
+    .creators-section {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      justify-content: space-between;
+      /* gap: 2px; */
+      z-index: 2;
+    }
+
+    .creators-section .member {
+      text-align: center;
+    }
+
+    .creators-section .member img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+
+    .creators-section .member p {
+      font-size: 1.1rem;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .creators-section {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      h1 { font-size: 3.2rem; }
+      .tagline-en { font-size: 1.2rem; }
+      .tagline-hi { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -205,6 +240,34 @@
     <h1>NAVDHARA</h1>
     <p class="tagline-en">Where Technology Meets Innovation</p>
     <p class="tagline-hi">डिजिटल प्रगति का प्रवाह</p>
+  </div>
+
+  <!-- New Creators Section - Horizontal at the Bottom -->
+  <div class="creators-section">
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 1">
+      <p>Anshuman Rajput- AIML</p>
+    </div>
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 2">
+      <p>Vartika Singh - Web Developer</p>
+    </div>
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 3">
+      <p>Anshuman Singh - Web Developer</p>
+    </div>
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 4">
+      <p>Akash Singh - App Developer</p>
+    </div>
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 5">
+      <p>Ajeet Singh - AIML</p>
+    </div>
+    <div class="member">
+      <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="Creator 6">
+      <p>Aftab Hussain - Designer</p>
+    </div>
   </div>
 
   <script>
