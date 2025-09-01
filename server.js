@@ -138,7 +138,8 @@ app.get('/api/user', auth, async (req, res) => {
   }
 });
 
-// Complete current task (upload photo)
+
+
 app.post('/api/complete-task', auth, upload.single('photo'), async (req, res) => {
   try {
     const user = await User.findById(req.userId);

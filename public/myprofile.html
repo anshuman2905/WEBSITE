@@ -146,7 +146,7 @@
     <div class="profile-container">
         <div class="profile-header">
             <div class="user-photo">
-                <img src="WhatsApp Image 2025-08-30 at 15.36.48_6c4b5b09.jpg" alt="User Photo">
+                <img src="vartika.jpg" alt="User Photo">
             </div>
             <div class="user-details">
                 <h2 class="user-name">MR. RAM SINGH</h2>
@@ -189,6 +189,37 @@
                 }
             }
         });
+
+    async function loadAll() {
+    const text = document.querySelector('.user-name');
+    const location = document.querySelector('.user-location');
+    const rewardPoints = document.querySelector('.reward-points');
+    const photo = document.querySelector('.user-photo img');
+    const token = localStorage.getItem('token'); // 🔹 get token
+
+    try {
+      const [taskRes, userRes] = await Promise.all([
+        fetch('/api/tasks'),
+        fetch('/api/user', { headers: { 'Authorization': 'Bearer ' + token } })
+      ]);
+
+      const tasks = await taskRes.json();
+      if (!userRes.ok) return window.location.href = '/';
+
+      const user = await userRes.json();
+      text.innerText = `${user.name}`;  // ✅ works now
+      location.innerText = `Location: ${user.location}`;
+      rewardPoints.innerText = `Land Size: ${user.farmSize}`;
+      photo.src = `${user.phoneNo}.jpg`;
+
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load dashboard.');
+    }
+  }
+
+  loadAll();
+
     </script>
 
 </body>

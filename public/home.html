@@ -157,7 +157,7 @@
     <img src="Screenshot_2025-08-29_092552-removebg-preview.png" alt="Logo" class="logo">
     <h1>NAVDHARA</h1>
     <div style="display:flex; align-items:center; gap:12px;">
-      <div class="welcome-text">Welcome User!</div>
+      <div class="welcome-text"></div>
       <a href="myprofile.html" class="profile-link">My Profile</a>
     </div>
   </header>
@@ -248,22 +248,39 @@
     © 2025 NAVDHARA Farming Platform – All Rights Reserved.
   </footer>
 
-  <script>
-    function goToProfile() {
-      alert("Going to My Profile...");
-    }
-    function goTo(page) {
-      alert("Navigating to " + page + "...");
-    }
+<script>
+  let slides = document.querySelectorAll(".slideshow-container img");
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove("active");
+    current = (current + 1) % slides.length;
+    slides[current].classList.add("active");
+  }, 2000);
 
-    let slides = document.querySelectorAll(".slideshow-container img");
-    let current = 0;
-    setInterval(() => {
-      slides[current].classList.remove("active");
-      current = (current + 1) % slides.length;
-      slides[current].classList.add("active");
-    }, 2000);
-  </script>
+  async function loadAll() {
+    const welcometext = document.querySelector('.welcome-text');
+    const token = localStorage.getItem('token'); // 🔹 get token
+
+    try {
+      const [taskRes, userRes] = await Promise.all([
+        fetch('/api/tasks'),
+        fetch('/api/user', { headers: { 'Authorization': 'Bearer ' + token } })
+      ]);
+
+      const tasks = await taskRes.json();
+      if (!userRes.ok) return window.location.href = '/';
+
+      const user = await userRes.json();
+      welcometext.innerText = `Welcome, ${user.name}!`;  // ✅ works now
+    } catch (err) {
+      console.error(err);
+      alert('Failed to load dashboard.');
+    }
+  }
+
+  loadAll();
+</script>
+
 
 </body>
 </html>

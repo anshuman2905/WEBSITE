@@ -12,9 +12,10 @@ const logoutBtn = document.getElementById('logoutBtn');
 const token = localStorage.getItem('token');
 
 if (!token) window.location.href = '/';
+let i=0;
 
 let user = null;
-let tasks = [];
+let tasks = ["First Task Is To Plough","This Is Second Task","Third Task","Fourth Task"];
 
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem('token');
@@ -53,13 +54,13 @@ function render() {
   } else {
     taskSection.style.display = 'block';
     finishedMsg.style.display = 'none';
-    taskText.innerText = tasks[idx].title || `Task #${idx+1}`;
+    taskText.innerText = tasks[i++] || `Task #${i+1}`;
   }
 
   completedList.innerHTML = '';
   (user.tasksCompleted || []).slice().reverse().forEach(c => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>Task:</strong> ${tasks[c.taskIndex]?.title || 'Task'} <br/>
+    li.innerHTML = `<strong>Task:</strong> ${tasks[c.taskIndex]?.trim() || 'Task'} <br/>
                     <small>${new Date(c.completedAt).toLocaleString()}</small><br/>
                     <a href="${c.photoPath}" target="_blank">View photo</a>`;
     completedList.appendChild(li);

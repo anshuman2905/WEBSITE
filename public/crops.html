@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Farm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #2e7d32;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+    }
+
+    .farm-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    .farm {
+      display: grid;
+      grid-template-columns: repeat(4, 150px);
+      gap: 15px;
+    }
+
+    .plot {
+      background: #e0f2f1;
+      border: 2px dashed #4caf50;
+      border-radius: 10px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .plot:hover {
+      background: #c8e6c9;
+    }
+
+    .plot h3 {
+      margin: 5px 0;
+    }
+
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #43a047;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    /* Popup form */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+    }
+
+    .popup-content h2 {
+      margin-bottom: 15px;
+    }
+
+    .popup-content select,
+    .popup-content input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .popup-content button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #2e7d32;
+      color: white;
+      cursor: pointer;
+    }
+
+    .popup-content button:hover {
+      background: #1b5e20;
+    }
+  </style>
+</head>
+<body>
+  <header>🌾 My Farm Layout</header>
+
+  <div class="farm-container">
+    <div id="farm" class="farm"></div>
+  </div>
+
+  <button class="fab" id="addLandBtn">+</button>
+
+  <!-- Popup -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <h2>Add New Land</h2>
+      <select id="crop">
+        <option value="">-- Select Crop --</option>
+        <option value="Wheat">Wheat</option>
+        <option value="Rice">Rice</option>
+        <option value="Corn">Corn</option>
+        <option value="Bajra">Bajra</option>
+      </select>
+      <input type="number" id="area" placeholder="Area (acres)" min="1" />
+      <div>
+        <button id="saveLand">Save</button>
+        <button onclick="closePopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scriptcrop.js"></script>
+</body>
+</html>
