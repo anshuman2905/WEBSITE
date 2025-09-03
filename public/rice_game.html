@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>🌾 Rice Farming Season Simulator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .tooltip { position: relative; cursor: pointer; color: #1f2937; }
+  .tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute; left: 0; top: 25px;
+    background: #333; color: #fff; padding: 5px 10px;
+    border-radius: 4px; white-space: nowrap; z-index: 10;
+  }
+  .progress, .growth-meter { height: 15px; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
+  .progress  { background: #d1fae5; }
+  .progress-bar { height: 15px; background: #2c6e49; width: 0%; transition: width .3s; }
+  .growth-meter { background: #e2f0e9; }
+  .growth-bar { height: 15px; background: #2c6e49; width: 0%; transition: width .5s; }
+  .crop-container { width:50px; height:200px; border:1px solid #2c6e49; margin:20px auto; position: relative; background:#d1fae5; }
+  .plant { width:100%; background:green; position:absolute; bottom:0; transition: height 1s; }
+  @keyframes floatUp {
+    0% { opacity:0; transform: translate(-50%, 0); }
+    20% { opacity:1; transform: translate(-50%, -10px); }
+    80% { opacity:1; transform: translate(-50%, -20px); }
+    100% { opacity:0; transform: translate(-50%, -30px); }
+  }
+  #stageLabel {
+    position: absolute; left: 50%; top: -20px; transform: translateX(-50%);
+    background:#047857; color:#fff; font-size:.875rem; padding:4px 12px; border-radius:9999px;
+    white-space:nowrap; box-shadow:0 2px 6px rgba(0,0,0,.3); opacity:0; pointer-events:none;
+  }
+  #stageLabel.show { animation: floatUp 3s ease forwards; }
+</style>
+</head>
+<body class="bg-gray-100 p-5">
+
+<h1 class="text-3xl font-bold text-green-800 mb-3">🌾 Rice Farming Season Simulator</h1>
+<p class="mb-4">Play through the season—your choices affect yield and score!</p>
+
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+<div class="growth-meter"><div class="growth-bar" id="growthBar"></div></div>
+
+<div class="crop-container relative">
+  <div id="plant" class="plant" style="height:50px;"></div>
+  <div id="stageLabel"></div>
+</div>
+
+<div id="countdown" class="mb-3 font-semibold text-red-600"></div>
+<div id="taskContainer" class="step bg-white p-5 rounded-lg shadow-md"></div>
+
+<div id="predictedPreview" class="bg-yellow-50 p-3 rounded-lg shadow-md mt-3 hidden">
+  <p id="yieldPreviewText" class="font-semibold"></p>
+  <p id="alertText" class="text-red-600 font-semibold"></p>
+</div>
+
+<div id="reportCard" class="bg-green-50 p-5 rounded-lg shadow-md mt-5 hidden">
+  <h2 class="text-2xl font-bold mb-3">🎓 Your Report Card</h2>
+  <p id="decisionScore"></p>
+  <p id="yieldScore"></p>
+  <p id="finalScore"></p>
+  <p id="predictedYield"></p>
+</div>
+
+<div id="leaderboard" class="bg-white p-3 rounded shadow mt-5 hidden">
+  <h2 class="font-bold mb-2">🏆 Leaderboard</h2>
+  <ol id="leaderboardList"></ol>
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:8000"; // FastAPI server
+
+// Bihar districts → seasons
+const districtSeasons = {
+  "Araria":["Kharif","Rabi","Autumn"],
+  "Arwal":["Kharif","Rabi"],
+  "Aurangabad":["Kharif","Rabi"],
+  "Banka":["Kharif","Rabi"],
+  "Begusarai":["Kharif","Rabi","Summer"],
+  "Bhagalpur":["Kharif","Rabi","Autumn"],
+  "Bhojpur":["Kharif","Rabi"],
+  "Buxar":["Kharif","Rabi"],
+  "Darbhanga":["Kharif","Rabi","Autumn"],
+  "East Champaran":["Kharif","Rabi","Autumn"],
+  "Gaya":["Kharif","Rabi"],
+  "Gopalganj":["Kharif","Rabi"],
+  "Jamui":["Kharif","Rabi"],
+  "Jehanabad":["Kharif","Rabi"],
+  "Kaimur":["Kharif","Rabi"],
+  "Katihar":["Kharif","Rabi","Autumn","Summer"],
+  "Khagaria":["Kharif","Rabi"],
+  "Kishanganj":["Kharif","Autumn"],
+  "Lakhisarai":["Kharif","Rabi"],
+  "Madhepura":["Kharif","Rabi"],
+  "Madhubani":["Kharif","Rabi","Autumn"],
+  "Munger":["Kharif","Rabi"],
+  "Muzaffarpur":["Kharif","Rabi","Autumn"],
+  "Nalanda":["Kharif","Rabi"],
+  "Nawada":["Kharif","Rabi"],
+  "Patna":["Kharif","Rabi","Autumn"],
+  "Purnia":["Kharif","Rabi","Autumn","Summer"],
+  "Rohtas":["Kharif","Rabi"],
+  "Saharsa":["Kharif","Rabi"],
+  "Samastipur":["Kharif","Rabi","Autumn"],
+  "Saran":["Kharif","Rabi"],
+  "Sheikhpura":["Kharif","Rabi"],
+  "Sheohar":["Kharif","Rabi"],
+  "Sitamarhi":["Kharif","Rabi","Autumn"],
+  "Siwan":["Kharif","Rabi"],
+  "Supaul":["Kharif","Rabi","Autumn"],
+  "Vaishali":["Kharif","Rabi","Autumn"],
+  "West Champaran":["Kharif","Rabi","Autumn"]
+};
+const allDistricts = Object.keys(districtSeasons);
+
+const steps = [
+  {title:"📍 Location & Season", description:"Select district and season.", input:[
+    {label:"District", type:"select", id:"district", options: allDistricts},
+    {label:"Season", type:"select", id:"season", options: []} // will populate from district
+  ]},
+  {title:"🧪 Personalization", description:"Do you want to enter soil/weather data?", input:[
+    {label:"Use personalized data?", type:"select", id:"personalize", options:["No","Yes"]}
+  ]},
+  {title:"🌱 Field Conditions", description:"Enter soil and weather values.", input:[
+    {label:"Soil pH", type:"range", id:"Soil_pH", min:4, max:9, step:0.1, tooltip:"Optimal 5.5-7.0"},
+    {label:"Organic Carbon (%)", type:"range", id:"Organic_Carbon", min:0, max:10, step:0.1},
+    {label:"Nitrogen (kg/ha)", type:"range", id:"Nitrogen", min:0, max:200, step:1},
+    {label:"Phosphorus (kg/ha)", type:"range", id:"Phosphorus", min:0, max:100, step:1},
+    {label:"Potassium (kg/ha)", type:"range", id:"Potassium", min:0, max:150, step:1},
+    {label:"Total Rainfall (mm)", type:"range", id:"total_rainfall", min:0, max:2000, step:10},
+    {label:"Avg Temperature (°C)", type:"range", id:"avg_temp", min:10, max:45, step:0.5},
+    {label:"Humidity (%)", type:"range", id:"Humidity", min:10, max:100, step:1}
+  ], condition:()=>responses.personalize==="Yes"},
+  {title:"1️⃣ Soil Preparation", description:"Choose soil prep method.", input:[
+    {label:"Method", type:"select", id:"soilPrep", options:["Tractor Tillage","Manual Tillage","Zero Till"]}
+  ]},
+  {title:"2️⃣ Seed Selection", description:"Choose rice variety and sowing density.", input:[
+    {label:"Variety", type:"select", id:"variety", options:["Shweta 1121","Samriddhi 6444","Basmati 1509"]},
+    {label:"Sowing Density (kg/ha)", type:"number", id:"sowingDensity"}
+  ]},
+  {title:"3️⃣ Irrigation", description:"Water management.", input:[
+    {label:"Irrigation method", type:"select", id:"irrigation", options:["Flood","Drip","SRI"]}
+  ]},
+  {title:"4️⃣ Fertilizer Usage", description:"Enter fertilizer applied.", input:[
+    {label:"Fertilizer (kg/ha)", type:"number", id:"fertilizer"}
+  ]},
+  {title:"5️⃣ Pest Control", description:"Enter pesticide applied.", input:[
+    {label:"Pesticide (kg/ha)", type:"number", id:"pesticide"}
+  ]},
+  {title:"6️⃣ Weed Management", description:"Enter weed control method.", input:[
+    {label:"Weed Control Method", type:"select", id:"weedControl", options:["Manual","Herbicide","None"]}
+  ]},
+  {title:"7️⃣ Mid Growth Observations", description:"Record crop observations.", input:[
+    {label:"Plant Height (cm)", type:"number", id:"plantHeight"},
+    {label:"Leaf Color Index (1-10)", type:"number", id:"leafColor"}
+  ]},
+  {title:"8️⃣ Harvest", description:"Enter harvest data.", input:[
+    {label:"Actual yield (kg/ha)", type:"number", id:"userYield"},
+    {label:"Harvest Method", type:"select", id:"harvestMethod", options:["Manual","Machine"]}
+  ]}
+];
+
+const growthStages = [
+  { step: 3, height: 80, label: "🌱 Seedling Stage" },
+  { step: 5, height: 120, label: "🌿 Vegetative Stage" },
+  { step: 7, height: 160, label: "🌾 Panicle Initiation" },
+  { step: 9, height: 200, label: "🍚 Grain Filling" }
+];
+
+const responses = {};
+let currentStep = 0;
+
+const container = document.getElementById("taskContainer");
+const progressBar = document.getElementById("progressBar");
+const growthBar = document.getElementById("growthBar");
+const previewContainer = document.getElementById("predictedPreview");
+const previewText = document.getElementById("yieldPreviewText");
+const alertText = document.getElementById("alertText");
+const countdownElem = document.getElementById("countdown");
+const plantElem = document.getElementById("plant");
+
+// ---------- helpers ----------
+function startCountdown(seconds, callback){
+  countdownElem.textContent = `Next task unlocks in ${seconds}s`;
+  let remaining = seconds;
+  const timer = setInterval(()=>{
+    remaining--;
+    countdownElem.textContent = `Next task unlocks in ${remaining}s`;
+    if(remaining<=0){ clearInterval(timer); countdownElem.textContent=""; callback(); }
+  }, 1000);
+}
+
+function renderStep(){
+  const step = steps[currentStep];
+  if(step.condition && !step.condition()){ currentStep++; renderStep(); return; }
+
+  container.innerHTML = `<h2 class="text-xl font-bold mb-2">${step.title}</h2><p class="mb-4">${step.description}</p>`;
+
+  // build inputs
+  step.input.forEach(field=>{
+    const label = document.createElement("label");
+    label.className = "block font-semibold mb-1";
+    label.innerHTML = field.tooltip
+      ? `${field.label} <span class='tooltip' data-tip='${field.tooltip}'>ℹ️</span>`
+      : field.label;
+    container.appendChild(label);
+
+    let input;
+    if(field.type === "select"){
+      input = document.createElement("select");
+      input.id = field.id;
+      input.className = "w-full p-2 mb-3 border rounded";
+      const opts = (field.options || []);
+      input.innerHTML = opts.map(o => `<option value="${o}">${o}</option>`).join("");
+    } else {
+      input = document.createElement("input");
+      input.type = field.type;
+      input.id = field.id;
+      input.min = field.min ?? "";
+      input.max = field.max ?? "";
+      input.step = field.step ?? "";
+      input.className = "w-full p-2 mb-3 border rounded";
+      if(field.type === "range"){
+        const out = document.createElement("span");
+        out.id = field.id+"_val";
+        out.textContent = input.value || "";
+        input.oninput = () => { out.textContent = input.value; updatePreview(); };
+        container.appendChild(out);
+      }
+    }
+    container.appendChild(input);
+  });
+
+  // district -> season population (only on step 0)
+  if(currentStep === 0){
+    const dSel = document.getElementById("district");
+    const sSel = document.getElementById("season");
+    function populateSeasons(){
+      const seasons = districtSeasons[dSel.value] || ["Kharif","Rabi","Autumn","Summer"];
+      sSel.innerHTML = seasons.map(s=>`<option value="${s}">${s}</option>`).join("");
+    }
+    // pick a default district on first render
+    if(!dSel.value){ dSel.value = allDistricts[0]; }
+    populateSeasons();
+    dSel.addEventListener("change", populateSeasons);
+  }
+
+  const button = document.createElement("button");
+  button.textContent = currentStep===steps.length-1 ? "Submit" : "Next";
+  button.className = "bg-green-700 text-white py-2 px-4 rounded hover:bg-green-800 mt-3";
+  button.onclick = nextStep;
+  container.appendChild(button);
+
+  progressBar.style.width = `${(currentStep/steps.length)*100}%`;
+}
+
+async function updatePreview(){
+  // hook for live previews (kept minimal by request)
+  return;
+}
+
+function animatePlantGrowth(newHeight){ plantElem.style.height = `${newHeight}px`; }
+function triggerGrowth(){
+  const stage = growthStages.find(s => s.step === currentStep);
+  if(stage){
+    animatePlantGrowth(stage.height);
+    const el = document.getElementById("stageLabel");
+    el.textContent = stage.label;
+    el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+  }
+}
+
+async function nextStep(){
+  const step = steps[currentStep];
+  let valid = true;
+
+  step.input.forEach(field=>{
+    const el = document.getElementById(field.id);
+    const val = el.value;
+
+    if(val==="" || val===null || (field.type!=="select" && isNaN(val) && field.type!=="text")){
+      el.classList.add("border-red-500");
+      valid = false;
+    }else{
+      el.classList.remove("border-red-500");
+      responses[field.id] = (field.type==="number" || field.type==="range") ? parseFloat(val) : val;
+    }
+  });
+
+  if(!valid){ alert("⚠️ Please fill all fields before continuing."); return; }
+
+  currentStep++;
+  triggerGrowth();
+
+  if(currentStep < steps.length){
+    const waitTime = 3;
+    container.innerHTML = "<p class='font-semibold text-blue-600'>Next task will unlock soon...</p>";
+    startCountdown(waitTime, renderStep);
+  } else {
+    await submitData();
+  }
+}
+
+// ---- FINAL: call backend model & show report card ----
+async function submitData(){
+  container.style.display = "none";
+  previewContainer.style.display = "none";
+
+  // Build payload for API; if user skipped personalization, send safe defaults
+  const payload = {
+    district: responses.district,
+    season: responses.season,
+    Soil_pH: responses.Soil_pH ?? 6.5,
+    Organic_Carbon: responses.Organic_Carbon ?? 0.8,
+    Nitrogen: responses.Nitrogen ?? 100,
+    Phosphorus: responses.Phosphorus ?? 40,
+    Potassium: responses.Potassium ?? 50,
+    total_rainfall: responses.total_rainfall ?? 800,
+    avg_temp: responses.avg_temp ?? 28,
+    Humidity: responses.Humidity ?? 70,
+    variety: responses.variety ?? "Unknown",
+    irrigation: responses.irrigation ?? "Unknown",
+    fertilizer: responses.fertilizer ?? 0,
+    pesticide: responses.pesticide ?? 0,
+    sowingDensity: responses.sowingDensity ?? 0
+  };
+
+  let predicted = null;
+  try{
+    const res = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    predicted = data.predicted_yield;
+  }catch(err){
+    console.error("Prediction failed:", err);
+    alert("Error contacting prediction server.");
+  }
+
+  const report = document.getElementById("reportCard");
+  report.style.display = "block";
+
+  // Keep your game scoring
+  document.getElementById("decisionScore").textContent = `🧠 Decision Score: 40 / 50`;
+  document.getElementById("yieldScore").textContent    = `🌾 Yield Comparison Score: 45 / 50`;
+  document.getElementById("finalScore").textContent    = `🏆 Total Score: 85 / 100`;
+  document.getElementById("predictedYield").textContent =
+    `📈 Predicted Yield: ${predicted!==null ? Number(predicted).toFixed(2) : "N/A"} kg/ha`;
+
+  updateLeaderboard("Player", 85);
+}
+
+function updateLeaderboard(userName, score){
+  const lb = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+  lb.push({name:userName, score});
+  lb.sort((a,b)=>b.score-a.score);
+  localStorage.setItem("leaderboard", JSON.stringify(lb.slice(0,5)));
+
+  const list = document.getElementById("leaderboardList");
+  list.innerHTML = lb.slice(0,5).map(u=>`<li>${u.name}: ${u.score}</li>`).join("");
+  document.getElementById("leaderboard").style.display="block";
+}
+
+renderStep();
+</script>
+</body>
+</html>

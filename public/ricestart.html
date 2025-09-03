@@ -16,16 +16,17 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(to bottom right, #a5d956, #4da2ca);
       overflow: hidden;
+      flex-direction: column;
     }
 
     .text-container {
       background: rgba(255, 255, 255, 0.95);
-      padding: 80px 100px; /* increased padding */
-      border-radius: 25px; /* slightly more rounded */
+      padding: 60px 80px;
+      border-radius: 25px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.25);
       text-align: center;
-      font-size: 3rem; /* larger font */
-      line-height: 2.5; /* more line spacing */
+      font-size: 2.5rem;
+      line-height: 2;
       color: #333333;
       transform: scale(0.9);
       animation: popIn 0.8s forwards;
@@ -50,7 +51,7 @@
       display: inline-block;
       transform: translateY(20px);
       animation: fadeInUp 0.5s forwards, bounce 0.6s ease infinite alternate;
-      margin: 0 8px; /* more space between words */
+      margin: 0 8px;
     }
 
     @keyframes fadeInUp {
@@ -64,17 +65,51 @@
       0% { transform: translateY(0); }
       100% { transform: translateY(-5px); }
     }
+
+    .button-container {
+      display: none;
+      margin-top: 30px;
+      gap: 20px;
+      animation: fadeIn 1s forwards;
+    }
+
+    .next-btn {
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(to right, #4da2ca, #a5d956);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .next-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <div class="text-container" id="animatedText">
-    <!-- Words will be injected here -->
+  <div class="text-container" id="animatedText"></div>
+
+  <div class="button-container" id="buttonContainer">
+    <button class="next-btn" onclick="window.location.href='rice.html'">Explore Farm🌾</button>
+    <button class="next-btn" onclick="window.location.href='rice_game.html'">Yield  Predictor🌿</button>
   </div>
 
   <script>
     const text = "Let's try it virtually first before the fields. Here is your Rice Farm. Let's go!";
-    const highlights = ["virtually first", "fields", "Wheat Farm"];
+    const highlights = ["virtually", "fields", "Rice Farm"];
     const container = document.getElementById('animatedText');
+    const buttonContainer = document.getElementById('buttonContainer');
 
     let delay = 0;
     text.split(' ').forEach(word => {
@@ -84,20 +119,20 @@
 
       // Highlight key words
       highlights.forEach(h => {
-        if (h.includes(word.replace(/[.,!]/g, ''))) {
+        if (h.toLowerCase().includes(word.replace(/[.,!]/g, '').toLowerCase())) {
           span.classList.add('highlight');
         }
       });
 
       span.style.animationDelay = `${delay}s`;
-      delay += 0.3;
+      delay += 0.15; // faster animation speed
       container.appendChild(span);
     });
 
-    // Redirect after all words are animated
-    const totalAnimationTime = delay + 1; // buffer
+    // Show buttons after animation finishes
+    const totalAnimationTime = delay + 0.5;
     setTimeout(() => {
-      window.location.href = "rice.html";
+      buttonContainer.style.display = "flex";
     }, totalAnimationTime * 1000);
   </script>
 </body>

@@ -1,155 +1,549 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Farming Leaderboard</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Peer Sharing & Leaderboards · Sustainable Farming</title>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-         background: linear-gradient(to bottom right, #a5d956, #4da2ca);
-        margin: 0;
-        padding: 0;
-    }
+  :root{
+    --bg: #0b1210;
+    --panel: #0f1815;
+    --panel-2: #0e1a16;
+    --text: #e9f5ee;
+    --muted: #bfe6d5;
+    --brand-1: #35ffa2;
+    --brand-2: #2bc7ff;
+    --accent: #ffd166;
+    --danger:#ff6b6b;
+    --ok:#8be28f;
+    --glass: rgba(255,255,255,0.06);
+    --card: rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:var(--text);
+    background: radial-gradient(1200px 600px at 10% -10%, #103a2d, transparent),
+                radial-gradient(900px 500px at 100% 0%, #0c2b4e, transparent),
+                linear-gradient(180deg, #07110e, #0b1210 60%);
+    min-height:100dvh; overflow-x:hidden;
+  }
+  .grid{
+    display:grid; gap:1rem;
+    grid-template-columns: 320px 1fr 360px;
+    padding: clamp(1rem, 2vw, 2rem);
+  }
+  @media (max-width:1100px){ .grid{ grid-template-columns: 1fr; } }
+  .card{
+    background: linear-gradient(180deg, var(--card), transparent 140%), var(--panel);
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.03);
+    border-radius: 18px; padding: 1rem;
+    backdrop-filter: blur(8px);
+  }
+  .header{
+    display:flex; gap:1rem; align-items:center; justify-content:space-between; padding: 1rem 1.2rem;
+    position: sticky; top:0; z-index:10; background: linear-gradient(180deg, rgba(11,18,16,0.85), rgba(11,18,16,0.35));
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .title{
+    display:flex; align-items:center; gap:.8rem; font-weight:800; letter-spacing:.3px;
+    font-size: clamp(18px, 2.2vw, 26px);
+  }
+  .title-badge{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .6rem;
+    border-radius:999px; font-size:12px; color:#052619; background: linear-gradient(90deg, var(--brand-1), var(--brand-2));
+    box-shadow: 0 6px 24px rgba(43,199,255,.35), inset 0 -1px 0 rgba(255,255,255,.4);
+    font-weight:700;
+  }
+  .chips{ display:flex; gap:.5rem; flex-wrap:wrap }
+  .chip{
+    padding:.45rem .7rem; background:var(--glass); border:1px solid rgba(255,255,255,0.09); border-radius:999px; font-size:.85rem; cursor:pointer;
+    transition:transform .15s ease, background .2s ease, border-color .2s ease;
+    user-select:none;
+  }
+  .chip[aria-pressed="true"]{
+    background: linear-gradient(90deg, rgba(53,255,162,.18), rgba(43,199,255,.18));
+    border-color: rgba(53,255,162,.6);
+    box-shadow: 0 4px 20px rgba(53,255,162,.18);
+  }
+  .search{
+    display:flex; gap:.5rem; align-items:center; background:var(--panel-2); padding:.5rem .8rem; border-radius:12px; border:1px solid rgba(255,255,255,.08);
+  }
+  .search input{ all:unset; width:220px; font-size:.95rem; color:var(--text); }
+  .btn{
+    appearance:none; border:none; cursor:pointer; border-radius:12px; padding:.6rem .9rem; font-weight:700; color:#052619;
+    background: linear-gradient(90deg, var(--brand-1), var(--brand-2));
+    box-shadow: 0 8px 30px rgba(53,255,162,.28);
+    transition: transform .12s ease;
+  }
+  .btn:active{ transform: translateY(1px) scale(.99) }
+  .ghost{ background:var(--glass); color:var(--muted); box-shadow:none; border:1px solid rgba(255,255,255,.08) }
+  h2{ margin:.2rem 0 .8rem; font-size:1.1rem; letter-spacing:.3px }
+  .lb-row{
+    display:grid; grid-template-columns: 42px 1fr 80px 90px;
+    gap:.6rem; align-items:center; padding:.5rem .6rem; border-radius:12px;
+    border:1px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+  }
+  .lb-row + .lb-row{ margin-top:.4rem }
+  .lb-row .rank{ font-weight:800; font-size:1.05rem; opacity:.95 }
+  .lb-row .name{ display:flex; align-items:center; gap:.6rem; }
+  .avatar{
+    width:32px; height:32px; border-radius:50%; display:grid; place-items:center; font-size:.9rem; font-weight:800;
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.2), transparent), linear-gradient(135deg, #42ffb5, #2bc7ff);
+    color:#083522; border:1px solid rgba(255,255,255,.35)
+  }
+  .tag{ font-size:.72rem; padding:.18rem .5rem; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.08); color:var(--muted) }
+  .spark{
+    position:relative; overflow:hidden;
+  }
+  .spark::after{
+    content:""; position:absolute; inset:-1px; background:
+      radial-gradient(220px 60px at -10% -20%, rgba(255,255,255,.08), transparent 40%),
+      radial-gradient(120px 40px at 110% 120%, rgba(43,199,255,.08), transparent 40%);
+    pointer-events:none;
+  }
+  .pill{ padding:.3rem .55rem; border-radius:999px; font-size:.78rem; color:#052619; background:linear-gradient(90deg, #ffda77, #ffd166) }
+  .progress{ height:10px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; border:1px solid rgba(255,255,255,.06) }
+  .bar{ height:100%; width:0%; background:linear-gradient(90deg, var(--brand-1), var(--brand-2)); transition: width 1.2s cubic-bezier(.2,.7,.1,1) }
+  .feed-item{
+    display:grid; grid-template-columns: 42px 1fr auto; gap:.6rem; padding:.7rem; border-radius:14px; border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+  }
+  .feed-actions{ display:flex; gap:.4rem; align-items:center }
+  .reaction{ padding:.25rem .5rem; border-radius:999px; background:var(--glass); border:1px solid rgba(255,255,255,.08); cursor:pointer }
+  .empty{ opacity:.6; font-size:.9rem; text-align:center; padding:.6rem 0 }
+  .ticker{
+    display:flex; gap:.6rem; overflow:auto; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .ticker::-webkit-scrollbar{ display:none }
+  .ticker .tile{
+    flex:0 0 auto; background:linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+    border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:.5rem .7rem; display:flex; gap:.6rem; align-items:center
+  }
+  .subtle{ color:var(--muted); font-size:.85rem }
+  .footer-note{ text-align:center; color:var(--muted); padding: 1rem 0 2rem; font-size:.85rem }
+  .shine{
+    position:relative; overflow:hidden;
+  }
+  .shine::before{
+    content:""; position:absolute; inset:0; transform: translateX(-120%); background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.14), transparent 60%);
+    animation: shine 3.2s infinite;
+  }
+  @keyframes shine{ 50%{ transform:translateX(140%) } }
 
-    .container {
-        max-width: 900px;
-        margin: 50px auto;
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
+  /* micro-animations */
+  .pop{ animation: pop .35s ease }
+  @keyframes pop{ 0%{ transform: scale(.9) } 70%{ transform: scale(1.04) } 100%{ transform: scale(1) } }
+  .float{ animation: float 4s ease-in-out infinite }
+  @keyframes float{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-6px) } }
 
-    h1 {
-        text-align: center;
-        color: #2e7d32;
-        margin-bottom: 30px;
-        font-size: 3rem;
-    }
+  /* badges */
+  .badge{
+    display:inline-flex; gap:.4rem; align-items:center; font-weight:700; font-size:.82rem;
+    padding:.35rem .55rem; border-radius:999px; color:#052619; background:linear-gradient(90deg, #b8ffcd, #35ffa2);
+    border:1px solid rgba(0,0,0,.1)
+  }
+  .locked{ opacity:.55; filter:saturate(.6); background:linear-gradient(90deg, #9aa7a0, #b6c1bb) !important }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 15px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #2e7d32;
-        color: #fff;
-        font-weight: bold;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    tr:hover {
-        background-color: #c8e6c9;
-        cursor: pointer;
-        transform: scale(1.01);
-        transition: all 0.2s ease-in-out;
-    }
-
-    td.designation {
-        font-weight: bold;
-        color: #1b5e20;
-    }
-
-    @media(max-width: 600px){
-        table, th, td {
-            display: block;
-        }
-
-        th {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-
-        tr {
-            margin-bottom: 15px;
-            display: block;
-            border-bottom: 2px solid #ddd;
-        }
-
-        td {
-            display: block;
-            text-align: right;
-            padding-left: 50%;
-            position: relative;
-        }
-
-        td::before {
-            content: attr(data-label);
-            position: absolute;
-            left: 15px;
-            width: 45%;
-            text-align: left;
-            font-weight: bold;
-        }
-    }
+  /* utility */
+  .row{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap }
+  .col{ display:flex; flex-direction:column; gap:.6rem }
+  .right{ text-align:right }
+  a.link{ color:var(--brand-2); text-decoration:none }
 </style>
 </head>
 <body>
+  <header class="header">
+    <div class="title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 11c4-2 6-6 9-6s5 4 9 6c-4 2-6 6-9 6s-5-4-9-6Z" stroke="url(#g)" stroke-width="1.4"/><path d="M12 17v4" stroke="url(#g)" stroke-width="1.4" stroke-linecap="round"/><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#35ffa2"/><stop offset="1" stop-color="#2bc7ff"/></linearGradient></defs></svg>
+      <span>Peer Sharing & Leaderboards</span>
+      <span class="title-badge">Panchayat Edition</span>
+    </div>
+    <div class="row">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#bfe6d5" stroke-width="1.4"/><path d="M20 20L17 17" stroke="#bfe6d5" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="search" placeholder="Search farmer, crop, or village…" />
+      </div>
+      <button class="btn ghost" id="voiceBtn" title="Play voice cheer">🔊 Voice Cheer</button>
+      <button class="btn" id="shareBtn" title="Share this leaderboard">Share Leaderboard</button>
+    </div>
+  </header>
 
-<div class="container">
-    <h1>Farming Leaderboard</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Designation</th>
-            </tr>
-        </thead>
-        <tbody id="leaderboard">
-            <!-- JS will populate rows here -->
-        </tbody>
-    </table>
-</div>
+  <main class="grid">
+    <!-- LEFT: Filters & Challenges -->
+    <section class="card spark">
+      <h2>Filter by Panchayat</h2>
+      <div class="chips" id="panchayatChips"></div>
+
+      <h2 style="margin-top:1rem">Weekly Community Challenge</h2>
+      <div class="col">
+        <div class="row" style="justify-content:space-between">
+          <div class="row">
+            <span class="pill">🌾 Soil Health Week</span>
+            <span class="tag">Ends: Sun</span>
+          </div>
+          <strong id="challengeProgress">0% complete</strong>
+        </div>
+        <div class="progress"><div class="bar" id="challengeBar"></div></div>
+        <div class="ticker" id="ticker"></div>
+        <div class="row" style="justify-content:space-between">
+          <button class="btn" id="joinChallenge">Join Challenge</button>
+          <button class="btn ghost" id="nominate">Nominate Hero Farmer</button>
+        </div>
+      </div>
+
+      <h2 style="margin-top:1rem">Panchayat vs Panchayat</h2>
+      <div id="pvp" class="col"></div>
+    </section>
+
+    <!-- CENTER: Leaderboard & Feed -->
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>Leaderboard <span class="tag">Top performers in sustainable tasks</span></h2>
+        <div class="row">
+          <span class="tag">Season 3</span>
+          <span class="tag">Streaks ON 🔥</span>
+        </div>
+      </div>
+      <div id="leaderboard" class="col"></div>
+
+      <h2 style="margin-top:1rem">Community Feed</h2>
+      <div id="feed" class="col"></div>
+      <div class="empty" id="emptyFeed" hidden>Be the first to share an update today! 🌟</div>
+    </section>
+
+    <!-- RIGHT: Badges, Teams, Actions -->
+    <section class="card shine">
+      <h2>My Badges</h2>
+      <div class="row" id="badges"></div>
+      <h2 style="margin-top:.8rem">Locked Badges</h2>
+      <div class="row" id="lockedBadges"></div>
+
+      <h2 style="margin-top:1rem">Quick Actions</h2>
+      <div class="row">
+        <button class="btn" id="postUpdate">Post Update</button>
+        <button class="btn ghost" id="highFive">🙌 Send Kudos</button>
+        <button class="btn ghost" id="mentor">🤝 Ask for Mentor</button>
+      </div>
+
+      <h2 style="margin-top:1rem">Village Teams</h2>
+      <div id="teams" class="col"></div>
+
+      <h2 style="margin-top:1rem">Invite Farmers</h2>
+      <div class="col">
+        <div class="row">
+          <input id="inviteName" placeholder="Farmer name" style="all:unset; background:var(--panel-2); border:1px solid rgba(255,255,255,.1); padding:.5rem .6rem; border-radius:10px; width:60%" />
+          <button class="btn" id="inviteBtn">Generate Invite</button>
+        </div>
+        <div id="inviteLink" class="subtle"></div>
+      </div>
+    </section>
+  </main>
+
+  <p class="footer-note">Built for community joy: celebrate progress, share learnings, and grow together 🌱</p>
+
+  <canvas id="confetti" style="position:fixed; inset:0; pointer-events:none;"></canvas>
 
 <script>
-const names = [
-    "Ravi Kumar","Anjali Sharma","Suresh Patil","Priya Singh","Arjun Mehta",
-    "Kavita Reddy","Vikram Joshi","Meena Rao","Rohit Verma","Sneha Gupta",
-    "Ajay Nair","Deepa Pillai","Manish Choudhary","Ritu Yadav","Harsh Vardhan",
-    "Pooja Desai","Nikhil Sharma","Lakshmi Iyer","Sanjay Kapoor","Anita Bhatia",
-    "Ramesh Kumar","Swati Joshi","Vivek Sharma","Rekha Singh","Prakash Verma"
+/* ----------- Sample Data ----------- */
+const PANCHAYATS = ["Bhagalpur", "Sabour", "Nathnagar", "Sultanganj", "Kahalgaon"];
+const FARMERS = [
+  {id:1, name:"Asha Devi", panchayat:"Bhagalpur", crop:"Wheat", points:1280, streak:12, tasks:["Compost","Mulching","Drip"], badges:["Soil Saver","Water Wise"], shareNote:"harvest moisture at 22%"},
+  {id:2, name:"Rakesh Kumar", panchayat:"Sabour", crop:"Maize", points:1190, streak:9, tasks:["Mixed Cropping","IPM"], badges:["Mixed-crop Pro"], shareNote:"reduced urea by 20%"},
+  {id:3, name:"Fatima Khatoon", panchayat:"Nathnagar", crop:"Paddy", points:1125, streak:15, tasks:["SRI Method","Mulching"], badges:["SRI Champion","Soil Saver"], shareNote:"saved 15% water"},
+  {id:4, name:"Sunil Mandal", panchayat:"Kahalgaon", crop:"Lentil", points:990, streak:6, tasks:["Organic Spray","Companion"], badges:["Organic Advocate"], shareNote:"neem oil success"},
+  {id:5, name:"Priya Singh", panchayat:"Sultanganj", crop:"Mustard", points:970, streak:10, tasks:["Drip","Green Manure"], badges:["Water Wise","Green Hero"], shareNote:"cover crop magic"},
+  {id:6, name:"Vivek Raj", panchayat:"Bhagalpur", crop:"Maize", points:940, streak:4, tasks:["Zero Tillage"], badges:["Soil Saver"], shareNote:"less diesel used"},
+  {id:7, name:"Kiran Devi", panchayat:"Sabour", crop:"Paddy", points:910, streak:8, tasks:["SRI Method"], badges:["SRI Champion"], shareNote:"seedlings 10 days old"},
+   {id:8, name:"Manoj Yadav", panchayat:"Nathnagar", crop:"Banana", points:880, streak:5, tasks:["Drip","Organic Spray"], badges:["Water Wise"], shareNote:"banana drip irrigation success"},
+  {id:9, name:"Sita Kumari", panchayat:"Kahalgaon", crop:"Paddy", points:860, streak:7, tasks:["Compost","Mulching"], badges:["Soil Saver"], shareNote:"increased soil fertility"},
+  {id:10, name:"Arun Das", panchayat:"Sultanganj", crop:"Vegetables", points:845, streak:6, tasks:["Companion","IPM"], badges:["IPM Defender"], shareNote:"reduced pest attack"},
+  {id:11, name:"Neha Rani", panchayat:"Bhagalpur", crop:"Litchi", points:820, streak:4, tasks:["Organic Spray"], badges:["Organic Advocate"], shareNote:"organic spray for litchi"},
+  {id:12, name:"Rajesh Sharma", panchayat:"Sabour", crop:"Paddy", points:800, streak:5, tasks:["SRI Method"], badges:["SRI Champion"], shareNote:"SRI gave higher yield"},
+  {id:13, name:"Anita Devi", panchayat:"Kahalgaon", crop:"Mustard", points:780, streak:3, tasks:["Green Manure"], badges:["Green Hero"], shareNote:"soil richness improved"},
+  {id:14, name:"Deepak Kumar", panchayat:"Nathnagar", crop:"Sugarcane", points:760, streak:6, tasks:["Mixed Cropping"], badges:["Mixed-crop Pro"], shareNote:"increased biodiversity"},
+  {id:15, name:"Meera Singh", panchayat:"Sultanganj", crop:"Wheat", points:740, streak:4, tasks:["Zero Tillage"], badges:["Soil Saver"], shareNote:"lower fuel cost this year"},
+  {id:16, name:"Sanjay Prasad", panchayat:"Bhagalpur", crop:"Maize", points:720, streak:5, tasks:["Compost","Organic Spray"], badges:["Organic Advocate"], shareNote:"boosted soil microbes"},
+  {id:17, name:"Poonam Kumari", panchayat:"Sabour", crop:"Vegetables", points:700, streak:2, tasks:["IPM"], badges:["IPM Defender"], shareNote:"pest control with less pesticide"},
+  {id:18, name:"Rohit Verma", panchayat:"Nathnagar", crop:"Paddy", points:685, streak:3, tasks:["SRI Method"], badges:["SRI Champion"], shareNote:"healthy seedlings growth"},
+  {id:19, name:"Geeta Devi", panchayat:"Sultanganj", crop:"Maize", points:670, streak:4, tasks:["Drip"], badges:["Water Wise"], shareNote:"water efficiency increased"},
+  {id:20, name:"Ajay Kumar", panchayat:"Kahalgaon", crop:"Paddy", points:650, streak:2, tasks:["Mulching"], badges:["Soil Saver"], shareNote:"saved moisture with mulch"}
 ];
-
-const locations = [
-    "Punjab","Rajasthan","Maharashtra","Uttar Pradesh","Gujarat","Telangana",
-    "Himachal Pradesh","Karnataka","Bihar","Haryana","Kerala","Tamil Nadu",
-    "Madhya Pradesh","Jharkhand","Uttarakhand","Goa","Delhi","Odisha",
-    "Chhattisgarh","Assam"
+const FEED_SEED = [
+  {user:"Asha Devi", text:"Completed 2-acre mulching. Soil moisture up!", emoji:"🌿"},
+  {user:"Rakesh Kumar", text:"Switched to drip on 1 hectare. Water saved.", emoji:"💧"},
+  {user:"Priya Singh", text:"Added green manure before sowing.", emoji:"🍀"},
+  {user:"Fatima Khatoon", text:"SRI: 1 seedling/hill trial looks great!", emoji:"🌾"},
 ];
+const BADGES_ALL = ["Soil Saver","Water Wise","Mixed-crop Pro","SRI Champion","Green Hero","IPM Defender","Carbon Cutter","Organic Advocate","Drone Scout"];
 
-const designations = ["Beginner","Intermediate","Expert","Master Farmer"];
+/* ----------- Helpers ----------- */
+const $ = (q)=>document.querySelector(q);
+const $$ = (q)=>document.querySelectorAll(q);
+const el = (t,cls,html)=>{ const e=document.createElement(t); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+const initials = (name)=> name.split(" ").map(s=>s[0]).join("").slice(0,2).toUpperCase();
+function formatPoints(n){ return n.toLocaleString() }
 
-const tbody = document.getElementById('leaderboard');
-
-for(let i=1; i<=125; i++){
-    const name = names[Math.floor(Math.random() * names.length)];
-    const location = locations[Math.floor(Math.random() * locations.length)];
-    const designation = designations[Math.floor(Math.random() * designations.length)];
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td data-label="Rank">${i}</td>
-        <td data-label="Name">${name}</td>
-        <td data-label="Location">${location}</td>
-        <td class="designation" data-label="Designation">${designation}</td>
-    `;
-    tbody.appendChild(tr);
+/* ----------- Panchayat Chips ----------- */
+let activePanchayat = "All";
+function renderChips(){
+  const wrap = $("#panchayatChips"); wrap.innerHTML="";
+  const all = el("button","chip"); all.textContent="All Panchayats"; all.setAttribute("aria-pressed", activePanchayat==="All"); all.onclick=()=>{activePanchayat="All"; allSpark(); render();}
+  wrap.appendChild(all);
+  PANCHAYATS.forEach(p=>{
+    const c = el("button","chip"); c.textContent=p; c.setAttribute("aria-pressed", p===activePanchayat);
+    c.onclick=()=>{ activePanchayat=p; allSpark(); render(); };
+    wrap.appendChild(c);
+  });
 }
-</script>
 
+/* ----------- Leaderboard ----------- */
+function renderLeaderboard(){
+  const list = $("#leaderboard"); list.innerHTML="";
+  const q = $("#search").value.trim().toLowerCase();
+  const data = FARMERS
+    .filter(f => activePanchayat==="All" || f.panchayat===activePanchayat)
+    .filter(f => !q || [f.name,f.crop,f.panchayat,(f.tasks||[]).join(" ")].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=> b.points - a.points)
+    .slice(0, 15);
+
+  data.forEach((f, i)=>{
+    const row = el("div","lb-row pop");
+    const crown = i===0 ? "👑" : i===1 ? "🥈" : i===2 ? "🥉" : "";
+    row.innerHTML = `
+      <div class="rank">${i+1}</div>
+      <div class="name">
+        <div class="avatar">${initials(f.name)}</div>
+        <div>
+          <div style="font-weight:800">${f.name} ${crown}</div>
+          <div class="subtle">${f.panchayat} • ${f.crop} • Streak: ${f.streak}d</div>
+        </div>
+      </div>
+      <div class="right"><span class="pill">${formatPoints(f.points)}</span></div>
+      <div class="row right">
+        <button class="reaction" title="Kudos">🙌</button>
+        <button class="reaction" title="High-five">✋</button>
+        <button class="reaction" title="Share" data-share='${encodeURIComponent(JSON.stringify(f))}'>🔗</button>
+      </div>
+    `;
+    row.querySelectorAll(".reaction")[0].onclick=()=>kudos(f.name, row);
+    row.querySelectorAll(".reaction")[1].onclick=()=>highFive(f.name, row);
+    row.querySelectorAll(".reaction")[2].onclick=(e)=>shareFarmer(JSON.parse(decodeURIComponent(e.currentTarget.dataset.share)));
+    list.appendChild(row);
+  });
+}
+
+/* ----------- Community Feed ----------- */
+let FEED = [...FEED_SEED];
+function renderFeed(){
+  const box = $("#feed"); box.innerHTML="";
+  if(!FEED.length){ $("#emptyFeed").hidden=false; return; } else { $("#emptyFeed").hidden=true; }
+  FEED.slice(-8).reverse().forEach(item=>{
+    const row = el("div","feed-item");
+    row.innerHTML = `
+      <div class="avatar">${initials(item.user)}</div>
+      <div>
+        <div style="font-weight:800">${item.user} <span class="tag">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+        <div>${item.emoji} ${item.text}</div>
+        <div class="row" style="margin-top:.4rem">
+          <button class="reaction">❤</button>
+          <button class="reaction">👍</button>
+          <button class="reaction">💬 Comment</button>
+        </div>
+      </div>
+      <div class="right">
+        <button class="reaction" onclick="boost(this)">🚀 Boost</button>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+/* ----------- Badges ----------- */
+function renderBadges(){
+  const mine = new Set(FARMERS[0].badges); // assume current user Asha Devi
+  const won = $("#badges"); won.innerHTML="";
+  const locked = $("#lockedBadges"); locked.innerHTML="";
+  BADGES_ALL.forEach(b=>{
+    const node = el("div","badge "+(mine.has(b) ? "" : "locked"), `<span>🏅</span><span>${b}</span>`);
+    (mine.has(b) ? won : locked).appendChild(node);
+  });
+}
+
+/* ----------- Teams (Panchayat vs Panchayat) ----------- */
+function renderTeams(){
+  const byP = {};
+  FARMERS.forEach(f=>{ byP[f.panchayat] ??= 0; byP[f.panchayat]+= f.points; });
+  const sorted = Object.entries(byP).sort((a,b)=>b[1]-a[1]);
+  const wrap = $("#pvp"); wrap.innerHTML="";
+  sorted.forEach(([p,sum],i)=>{
+    const n = el("div","col");
+    n.innerHTML = `
+      <div class="row" style="justify-content:space-between">
+        <div class="row"><strong>${i+1}. ${p}</strong> <span class="tag">${formatPoints(sum)} pts</span></div>
+        <span>${i===0?"🏆": i===1?"🥈": i===2?"🥉":"✨"}</span>
+      </div>
+      <div class="progress"><div class="bar" style="width:${Math.min(100, (sum/ (sorted[0][1]||1))*100)}%"></div></div>
+    `;
+    wrap.appendChild(n);
+  });
+}
+
+/* ----------- Ticker & Challenge ----------- */
+function renderTicker(){
+  const t = $("#ticker"); t.innerHTML="";
+  const facts = [
+    "🎯 Goal: 200 compost pits",
+    "💧 15% irrigation saved this week",
+    "🐝 40 farms added bee-friendly flowers",
+    "🌱 62 farmers tried mixed cropping",
+    "🧪 Soil tests conducted: 120"
+  ];
+  facts.forEach(f=> t.appendChild(el("div","tile float", `<span>${f}</span>`)));
+}
+let joined = false;
+function updateChallenge(){
+  const participants = joined ? 120 : 96;
+  const progress = Math.min(100, Math.round((participants/200)*100));
+  $("#challengeBar").style.width = progress + "%";
+  $("#challengeProgress").textContent = progress + "% complete";
+}
+
+/* ----------- Actions ----------- */
+function kudos(name, node){
+  toast(`Kudos sent to ${name} 🎉`);
+  burst(node.getBoundingClientRect());
+}
+function highFive(name, node){
+  toast(`High-five to ${name} ✋`);
+  burst(node.getBoundingClientRect(), true);
+}
+function shareFarmer(f){
+  const text = `👏 ${f.name} from ${f.panchayat} scored ${f.points} pts. Tasks: ${f.tasks.join(", ")}. #SustainableFarming`;
+  const url = location.href.split("#")[0]+"#farmer="+encodeURIComponent(f.name);
+  if(navigator.share){
+    navigator.share({ title:"Leaderboard Highlight", text, url }).catch(()=>{});
+  }else{
+    copyToClipboard(`${text}\n${url}`);
+    toast("Share link copied 🔗");
+  }
+}
+$("#shareBtn").onclick = ()=>{
+  const p = activePanchayat==="All" ? "All Panchayats" : activePanchayat;
+  const text = `🌾 Leaderboard – ${p}. Join the challenge with us!`;
+  const url = location.href.split("#")[0]+"#panchayat="+encodeURIComponent(p);
+  if(navigator.share){ navigator.share({title:"Peer Leaderboard", text, url}).catch(()=>{}); }
+  else{ copyToClipboard(`${text}\n${url}`); toast("Leaderboard link copied 🔗"); }
+};
+$("#postUpdate").onclick = ()=>{
+  const msg = prompt("Share your update with the community:", "Added compost to half acre today.");
+  if(!msg) return;
+  FEED.push({user:"You", text:msg, emoji:"🌟"});
+  renderFeed(); toast("Update posted ✨"); confetti();
+};
+$("#highFive").onclick = ()=>{ toast("Kudos blast sent to your village 🙌"); confetti(); };
+$("#mentor").onclick = ()=>{ toast("Mentor request posted. Expect a reply soon 🤝"); };
+
+$("#joinChallenge").onclick = ()=>{
+  joined = !joined;
+  $("#joinChallenge").textContent = joined ? "Leave Challenge" : "Join Challenge";
+  updateChallenge();
+  confetti();
+};
+
+$("#nominate").onclick = ()=>{
+  const who = prompt("Nominate a Hero Farmer:", "Enter name");
+  if(who){ toast(`Nomination sent for ${who} 🏅`); confetti(); }
+};
+
+$("#voiceBtn").onclick = ()=>{
+  const u = new SpeechSynthesisUtterance("Bahut badhiya! Aapki mehnat se gaon ka maan badh raha hai.");
+  u.lang = "hi-IN"; u.rate = 1; u.pitch = 1;
+  speechSynthesis.speak(u);
+};
+
+$("#inviteBtn").onclick = ()=>{
+  const name = $("#inviteName").value.trim() || "Farmer";
+  const code = Math.random().toString(36).slice(2,8).toUpperCase();
+  const link = location.href.split("#")[0] + "?invite=" + code;
+  $("#inviteLink").textContent = `${name}, share this invite: ${link}`;
+  copyToClipboard(link); toast("Invite link copied 📩");
+};
+
+/* ----------- Tiny UI System ----------- */
+function copyToClipboard(text){
+  navigator.clipboard?.writeText(text).catch(()=>{
+    const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); } finally{ ta.remove(); }
+  });
+}
+function toast(msg){
+  let t = document.getElementById("toast");
+  if(!t){ t = el("div", null, msg); t.id="toast"; document.body.appendChild(t);
+    Object.assign(t.style,{position:"fixed",left:"50%",bottom:"24px",transform:"translateX(-50%)",background:"rgba(0,0,0,.7)",color:"#fff",padding:"10px 14px",borderRadius:"10px",zIndex:9999,backdropFilter:"blur(4px)"});
+  }else{ t.textContent = msg; }
+  t.style.opacity = 0; t.style.transition="opacity .2s ease"; requestAnimationFrame(()=>{ t.style.opacity=1; });
+  setTimeout(()=>{ t.style.opacity=0; }, 1600);
+}
+function boost(btn){
+  btn.disabled=true; btn.textContent="⚡ Boosted"; setTimeout(()=>{ btn.textContent="🚀 Boost"; btn.disabled=false; }, 2000);
+}
+
+/* ----------- Confetti (Canvas) ----------- */
+const cvs = document.getElementById("confetti"), ctx = cvs.getContext("2d");
+let confs = []; function resize(){ cvs.width=innerWidth; cvs.height=innerHeight } resize(); addEventListener("resize", resize);
+function confetti(){
+  const N = 120;
+  for(let i=0;i<N;i++){
+    confs.push({x:Math.random()*cvs.width, y:-10, r:2+Math.random()*4, vx:(Math.random()-.5)*2, vy:2+Math.random()*3, a: Math.random()*360});
+  }
+}
+function burst(rect, small){
+  const N = small? 40: 80;
+  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+  for(let i=0;i<N;i++){
+    const ang = Math.random()*Math.PI*2, sp = 2+Math.random()*4;
+    confs.push({x:cx, y:cy, r:2+Math.random()*3, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp, a:Math.random()*360});
+  }
+}
+(function loop(){
+  requestAnimationFrame(loop);
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  confs = confs.filter(p=> p.y < cvs.height+10);
+  confs.forEach(p=>{
+    p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.a += 6;
+    ctx.save();
+    ctx.translate(p.x, p.y); ctx.rotate(p.a*Math.PI/180);
+    ctx.fillStyle = `hsl(${(p.a*3)%360} 90% 60%)`;
+    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
+    ctx.restore();
+  });
+})();
+
+/* ----------- Glue ----------- */
+function allSpark(){ document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed", c.textContent===activePanchayat || (activePanchayat==="All" && c.textContent.includes("All")))); }
+function render(){
+  renderLeaderboard();
+  renderFeed();
+  renderBadges();
+  renderTeams();
+  renderTicker();
+  updateChallenge();
+}
+$("#search").addEventListener("input", render);
+
+/* Seed actions to make it feel alive */
+setInterval(()=>{
+  if(Math.random()<0.55){
+    const f = FARMERS[Math.floor(Math.random()*FARMERS.length)];
+    FEED.push({user:f.name, text:f.shareNote, emoji:"✨"});
+    renderFeed();
+  }
+}, 5000);
+
+/* INIT */
+renderChips(); render();
+</script>
 </body>
 </html>

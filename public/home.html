@@ -25,7 +25,6 @@
       position: relative;
     }
 
-    /* Enhanced NAVDHARA text */
     header h1 {
       position: absolute;
       left: 50%;
@@ -46,7 +45,6 @@
       width: auto;
     }
 
-    /* New Welcome text */
     .welcome-text {
       margin-right: 16px;
       font-size: 18px;
@@ -99,9 +97,9 @@
       gap: 20px;
     }
 
-    .dashboard a{
-        text-decoration: none;
-        color: #000000;
+    .dashboard a {
+      text-decoration: none;
+      color: #000000;
     }
     .card {
       background: white;
@@ -150,6 +148,108 @@
         height: 60px;
       }
     }
+
+    /* Chatbot Styles */
+    #chatbot {
+      width: 320px;
+      max-height: 450px;
+      background: rgba(0,0,0,0.85);
+      border-radius: 12px;
+      display: none; /* hidden initially */
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      overflow: hidden;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      z-index: 999;
+    }
+    #chatbot-header {
+      background: #2e7d32;
+      color: #fff;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+    #chat-window {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #chat-window .message {
+      padding: 8px 12px;
+      border-radius: 10px;
+      max-width: 75%;
+      word-wrap: break-word;
+    }
+    #chat-window .user {
+      background: #4caf50;
+      color: #fff;
+      align-self: flex-end;
+    }
+    #chat-window .bot {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      align-self: flex-start;
+    }
+    #chat-input-container {
+      display: flex;
+      padding: 6px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      gap: 5px;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 14px;
+    }
+    #chat-input::placeholder { color: rgba(255,255,255,0.6); }
+    #chat-send, #voice-btn {
+      padding: 8px 12px;
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    #chat-send:hover, #voice-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    /* Floating circle button */
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transition: transform 0.2s;
+    }
+    #chat-toggle:hover {
+      transform: scale(1.1);
+    }
+
   </style>
 </head>
 <body>
@@ -164,124 +264,121 @@
   </header>
 
   <div class="slideshow-container">
-    <img src="https://i.pinimg.com/736x/4e/9f/f9/4e9ff9a0992c63ebb4c690897cae3030.jpg" alt="Slide 7">
-    <img src="https://images.unsplash.com/photo-1498408040764-ab6eb772a145?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="active" alt="Slide 1">
-    <img src="https://media.istockphoto.com/id/1307039908/photo/senior-woman-applying-fertilizer-plant-food-to-soil-for-vegetable-and-flower-garden.jpg?s=612x612&w=0&k=20&c=QQGmR0jfRWg_Q2s1X78xLW-ZaDSuHZS4EIQtuNbszFI=" alt="Slide 2">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQra-zGS-AuKgOKyH_NPf09kgdr_26Az0SVlg&s" alt="Slide 3">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvm17G-_V3KObxlCQMInNi-hHi5SsAr3CqBQ&s" alt="Slide 4">
+    <img src="https://images.unsplash.com/photo-1492496913980-501348b61469?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGZhcm18ZW58MHx8MHx8fDA%3D" class="active" alt="Slide 1">
+    <img src="https://media.istockphoto.com/id/1307039908/photo/senior-woman-applying-fertilizer-plant-food-to-soil-for-vegetable-and-flower-garden.jpg?s=612x612&w=0&k=20" alt="Slide 2">
+    <img src="https://images.unsplash.com/photo-1492496913980-501348b61469?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGZhcm18ZW58MHx8MHx8fDA%3D" alt="Slide 3">
+    <img src="https://media.istockphoto.com/id/2190962327/photo/senior-farmer-man-working-at-agricultural-field.webp?a=1&b=1&s=612x612&w=0&k=20&c=3u5_KvPTCEqEl912bvU9wLylznLpE9e4oUo3w7WTfN0=" alt="Slide 4">
     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8JOS4GaP0SHeo_hONGrs-ac7Y9U5k6QwslQ&s" alt="Slide 5">
     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAvhRZV765YjLn9q3K7eg3ibAWkEnWPF4UEw&s" alt="Slide 6">
+    <img src="https://plus.unsplash.com/premium_photo-1663945778994-11b3201882a0?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFybXxlbnwwfHwwfHx8MA%3D%3D" alt="Slide 7">
   </div>
   
   <main class="dashboard">
-    
-    
-    <a href="crops.html" class="card" >
+    <a href="crops.html" class="card">
       <img src="https://img.icons8.com/color/96/to-do.png" alt="Tasks">
       <p>My Tasks</p>
     </a>
-    
     <a href="rewards.html" class="card">
       <img src="https://img.icons8.com/color/96/medal.png" alt="Rewards">
       <p>Rewards</p>
     </a>
-    
     <a href="farm-progress.html" class="card">
       <img src="https://www.shutterstock.com/image-illustration/rising-bar-graph-260nw-159340967.jpg" alt="Farm Progress">
       <p>Farm Progress</p>
     </a>
-
-
     <a href="categories.html" class="card">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoyi3tSOn1IGKtLJYqnHSN4WH48s3HQB_DOQ&s" alt="Categories">
       <p>Categories</p>
     </a>
-
-    
-    
     <a href="leaderboard.html" class="card">
       <img src="https://img.icons8.com/color/96/leaderboard.png" alt="Leaderboard">
       <p>Leaderboard</p>
     </a>
-    
     <a href="farmingT.html" class="card">
       <img src="https://img.icons8.com/color/96/plant-under-sun.png" alt="Techniques">
       <p>Farming Techniques</p>
     </a>
-
-    
     <a href="community.html" class="card">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYrA5FeyHqG0r7QEGQDNwEMPgaszW8IiZXtg&s" alt="MyCommunity">
       <p>MyCommunity</p>
     </a> 
-    
     <a href="3dlayout.html" class="card">
       <img src="https://img.icons8.com/color/96/blueprint.png" alt="3D Layout">
       <p>3D Layout</p>
     </a>
-    
     <a href="notification.html" class="card">
       <img src="https://img.icons8.com/color/96/appointment-reminders.png" alt="Notifications">
       <p>Notifications</p>
     </a>
-    
     <a href="setting.html" class="card">
       <img src="https://img.icons8.com/color/96/settings.png" alt="Settings">
       <p>Settings</p>
     </a>
-    
     <a href="needhelp.html" class="card">
       <img src="https://img.icons8.com/color/96/help.png" alt="Need Help">
       <p>Need Help</p>
     </a>
-
-
-
-
     <a class="card" href="k.html">
-    <img src="https://img.icons8.com/color/96/logout-rounded.png" alt="Log Out">
-    <p>Log Out</p>
-  </a>
-
+      <img src="https://img.icons8.com/color/96/logout-rounded.png" alt="Log Out">
+      <p>Log Out</p>
+    </a>
   </main>
 
   <footer>
     © 2025 NAVDHARA Farming Platform – All Rights Reserved.
   </footer>
 
-<script>
-  let slides = document.querySelectorAll(".slideshow-container img");
-  let current = 0;
-  setInterval(() => {
-    slides[current].classList.remove("active");
-    current = (current + 1) % slides.length;
-    slides[current].classList.add("active");
-  }, 2000);
+  <!-- Chatbot -->
+  <div id="chatbot">
+    <div id="chatbot-header">AgriBot</div>
+    <div id="chat-window"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Ask me..." />
+      <button id="voice-btn">🎤</button>
+      <button id="chat-send">Send</button>
+    </div>
+  </div>
 
-  async function loadAll() {
-    const welcometext = document.querySelector('.welcome-text');
-    const token = localStorage.getItem('token'); // 🔹 get token
+  <!-- Floating Toggle Button -->
+  <button id="chat-toggle">💬</button>
 
-    try {
-      const [taskRes, userRes] = await Promise.all([
-        fetch('/api/tasks'),
-        fetch('/api/user', { headers: { 'Authorization': 'Bearer ' + token } })
-      ]);
+  <script src="chatbot.js"></script>
+  <script>
+    let slides = document.querySelectorAll(".slideshow-container img");
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+    }, 2000);
 
-      const tasks = await taskRes.json();
-      if (!userRes.ok) return window.location.href = '/';
+    async function loadAll() {
+      const welcometext = document.querySelector('.welcome-text');
+      const token = localStorage.getItem('token'); 
 
-      const user = await userRes.json();
-      welcometext.innerText = `Welcome, ${user.name}!`;  // ✅ works now
-    } catch (err) {
-      console.error(err);
-      alert('Failed to load dashboard.');
+      try {
+        const [taskRes, userRes] = await Promise.all([
+          fetch('/api/tasks'),
+          fetch('/api/user', { headers: { 'Authorization': 'Bearer ' + token } })
+        ]);
+
+        const tasks = await taskRes.json();
+        if (!userRes.ok) return window.location.href = '/';
+
+        const user = await userRes.json();
+        welcometext.innerText = `Welcome, ${user.name}!`;  
+      } catch (err) {
+        console.error(err);
+        alert('Failed to load dashboard.');
+      }
     }
-  }
+    loadAll();
 
-  loadAll();
-</script>
-
-
+    // Chatbot toggle
+    document.getElementById('chat-toggle').addEventListener('click', () => {
+      const chatbot = document.getElementById('chatbot');
+      chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+    });
+  </script>
 </body>
 </html>
