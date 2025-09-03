@@ -12,9 +12,18 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   farmSize: String,
   location: String,
-  currentTaskIndex: { type: Number, default: 0 },
-  points: { type: Number, default: 0 },
-  tasksCompleted: [CompletedTaskSchema]
+  currentTaskIndexWheat: { type: Number, default: 0 },
+  currentTaskIndexRice: { type: Number, default: 0 },
+  currentTaskIndexCorn: { type: Number, default: 0 },
+  currentTaskIndexBajra: { type: Number, default: 0 },
+  pointsWheat: { type: Number, default: 0 },
+  pointsRice: { type: Number, default: 0 },
+  pointsCorn: { type: Number, default: 0 },
+  pointsBajra: { type: Number, default: 0 },
+  tasksCompletedWheat: [CompletedTaskSchema],
+  tasksCompletedRice: [CompletedTaskSchema],
+  tasksCompletedCorn: [CompletedTaskSchema],
+  tasksCompletedBajra: [CompletedTaskSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

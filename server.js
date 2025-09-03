@@ -131,7 +131,14 @@ app.get('/api/user', auth, async (req, res) => {
       farmSize: user.farmSize,
       location: user.location,
       currentTaskIndex: user.currentTaskIndex,
-      tasksCompleted: user.tasksCompleted
+      tasksCompletedWheat: user.tasksCompletedWheat,
+      tasksCompletedRice: user.tasksCompletedRice,
+      tasksCompletedCorn: user.tasksCompletedCorn,
+      tasksCompletedBajra: user.tasksCompletedBajra,
+      pointsWheat:user.pointsWheat,
+      pointsRice:user.pointsRice,
+      pointsCorn:user.pointsCorn,
+      pointsBajra:user.pointsBajra
     });
   } catch (err) {
     res.status(500).json({ message: 'Failed to get user', error: err.message });
@@ -140,12 +147,12 @@ app.get('/api/user', auth, async (req, res) => {
 
 
 
-app.post('/api/complete-task', auth, upload.single('photo'), async (req, res) => {
+app.post('/api/complete-task/Wheat', auth, upload.single('photo'), async (req, res) => {
   try {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (user.currentTaskIndex >= TASKS.length) {
+    if (user.currentTaskIndexWheat >= TASKS.length) {
       return res.status(400).json({ message: 'All tasks already completed' });
     }
 
@@ -154,24 +161,24 @@ app.post('/api/complete-task', auth, upload.single('photo'), async (req, res) =>
     const photoPath = '/uploads/' + req.file.filename;
 
     // Push task completion
-    user.tasksCompleted.push({
-      taskIndex: user.currentTaskIndex,
+    user.tasksCompletedWheat.push({
+      taskIndex: user.currentTaskIndexWheat,
       photoPath,
       completedAt: new Date()
     });
 
     // Reward points per task (e.g., 10 points each)
-    user.points += 10;
+    user.pointsWheat += 20;
 
-    user.currentTaskIndex += 1;
+    user.currentTaskIndexWheat += 1;
     await user.save();
 
     res.json({
       message: 'Task completed',
       user: {
-        currentTaskIndex: user.currentTaskIndex,
-        tasksCompleted: user.tasksCompleted,
-        points: user.points   // <-- return updated points
+        currentTaskIndexWheat: user.currentTaskIndexWheat,
+        tasksCompletedWheat: user.tasksCompletedWheat,
+        pointsWheat: user.pointsWheat   // <-- return updated points
       }
     });
   } catch (err) {
@@ -180,10 +187,58 @@ app.post('/api/complete-task', auth, upload.single('photo'), async (req, res) =>
   }
 });
 
+app.post('/api/complete-task/Rice', auth, upload.single('photo'), async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Make sure TASKS_RICE is defined somewhere like TASKS for Wheat
+    // if (user.currentTaskIndexRice >= TASKS_RICE.length) {
+    //   return res.status(400).json({ message: 'All Rice tasks already completed' });
+    // }
+
+    if (!req.file) return res.status(400).json({ message: 'Photo is required' });
+
+    const photoPath = '/uploads/' + req.file.filename;
+
+    // Push task completion
+    user.tasksCompletedRice.push({
+      taskIndex: user.currentTaskIndexRice,
+      photoPath,
+      completedAt: new Date()
+    });
+
+    // Reward points per task (e.g., 20 points each)
+    user.pointsRice += 20;
+
+    user.currentTaskIndexRice += 1;
+    await user.save();
+
+    res.json({
+      message: 'Rice task completed',
+      user: {
+        currentTaskIndexRice: user.currentTaskIndexRice,
+        tasksCompletedRice: user.tasksCompletedRice,
+        pointsRice: user.pointsRice   // <-- return updated points
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Upload failed', error: err.message });
+  }
+});
+
+
+
+
+
 // Fallback: serve index.html for any unknown routes (so front-end routing works)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+
+
 
 // Start server
 const PORT = process.env.PORT || 3000;

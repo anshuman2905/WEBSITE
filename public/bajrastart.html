@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Text Page</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+      overflow: hidden;
+    }
+
+    .text-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 80px 100px; /* increased padding */
+      border-radius: 25px; /* slightly more rounded */
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      text-align: center;
+      font-size: 3rem; /* larger font */
+      line-height: 2.5; /* more line spacing */
+      color: #333333;
+      transform: scale(0.9);
+      animation: popIn 0.8s forwards;
+    }
+
+    @keyframes popIn {
+      to { transform: scale(1); }
+    }
+
+    .highlight {
+      color: #ff6f61;
+      font-weight: 600;
+      transition: transform 0.3s;
+    }
+
+    .highlight:hover {
+      transform: scale(1.2);
+    }
+
+    .word {
+      opacity: 0;
+      display: inline-block;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s forwards, bounce 0.6s ease infinite alternate;
+      margin: 0 8px; /* more space between words */
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="text-container" id="animatedText">
+    <!-- Words will be injected here -->
+  </div>
+
+  <script>
+    const text = "Let's try it virtually first before the fields. Here is your Bajra Farm. Let's go!";
+    const highlights = ["virtually first", "fields", "Wheat Farm"];
+    const container = document.getElementById('animatedText');
+
+    let delay = 0;
+    text.split(' ').forEach(word => {
+      const span = document.createElement('span');
+      span.textContent = word + ' ';
+      span.classList.add('word');
+
+      // Highlight key words
+      highlights.forEach(h => {
+        if (h.includes(word.replace(/[.,!]/g, ''))) {
+          span.classList.add('highlight');
+        }
+      });
+
+      span.style.animationDelay = `${delay}s`;
+      delay += 0.1;
+      container.appendChild(span);
+    });
+
+    // Redirect after all words are animated
+    const totalAnimationTime = delay + 1; // buffer
+    setTimeout(() => {
+      window.location.href = "bajra.html";
+    }, totalAnimationTime * 1000);
+  </script>
+</body>
+</html>

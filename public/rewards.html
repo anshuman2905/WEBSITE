@@ -3,244 +3,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Farmer Rewards</title>
+  <title>🌱 Sustainable Farming Rewards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    body { background: linear-gradient(to bottom, #e0f7ef, #ffffff); font-family: 'Poppins', sans-serif; overflow-x: hidden; position: relative; }
 
-    body {
-      font-family: 'Arial', sans-serif;
-       background: linear-gradient(to bottom right, #a5d956, #4da2ca);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      padding: 20px;
-    }
+    .cloud { position: absolute; background: #fff; border-radius: 50%; opacity: 0.7; animation: float 40s linear infinite; }
+    @keyframes float { 0% { transform: translateX(-200px); } 100% { transform: translateX(120vw); } }
 
-    .reward-section {
-      background: #fff;
-      border-radius: 20px;
-      padding: 50px;
-      width: 500px; /* Increased width */
-      height: 750px; /* Increased height */
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      position: relative;
-    }
+    .card { transition: transform 0.4s ease, box-shadow 0.4s ease; transform-style: preserve-3d; perspective: 1000px; }
+    .card:hover { transform: rotateY(15deg) rotateX(5deg) scale(1.05); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
-    .reward-header {
-      font-size: 50px; /* Increased font size */
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #4CAF50;
-    }
+    .badge { animation: pop 0.5s ease-in-out, floatBadge 3s ease-in-out infinite alternate; }
+    @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes floatBadge { 0% { transform: translateY(0); } 100% { transform: translateY(-5px); } }
 
-    .progress-container {
-      width: 100%;
-      height: 30px; /* Increased height */
-      background: #d3e6d0;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      position: relative;
-    }
+    .leaderboard li { padding: 10px 15px; border-radius: 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; transition: all 0.3s ease; transform-style: preserve-3d; }
+    .leaderboard li:hover { transform: rotateY(10deg) translateZ(5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(135deg, #ff9f00, #ff6f00);
-      border-radius: 15px;
-      width: 0;
-      transition: width 0.5s ease;
-    }
+    .section-title { position: relative; display: inline-block; }
+    .section-title::after { content: ''; width: 50px; height: 4px; background: linear-gradient(to right, #22c55e, #10b981); position: absolute; bottom: -6px; left: 0; border-radius: 2px; }
 
-    .progress-text {
-      font-size: 18px;
-      color: #333;
-      margin-top: 10px;
-    }
-
-    .level-info {
-      margin-bottom: 40px;
-      text-align: left;
-    }
-
-    .level-title {
-      font-size: 22px; /* Increased font size */
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .points-text {
-      font-size: 18px;
-      color: #555;
-    }
-
-    .next-level {
-      font-size: 20px; /* Increased font size */
-      font-weight: 500;
-      margin-top: 15px;
-      color: #4CAF50;
-    }
-
-    .offers {
-      margin-top: 20px;
-      font-size: 18px; /* Increased font size */
-      color: #444;
-    }
-
-    .offer {
-      margin: 12px 0;
-      font-weight: bold;
-      color: #FF5722;
-    }
-
-    .earn-points-btn {
-      background-color: #4CAF50;
-      color: white;
-      padding: 15px 30px; /* Increased padding */
-      border: none;
-      border-radius: 30px;
-      font-size: 20px; /* Increased font size */
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-top: 30px;
-    }
-
-    .earn-points-btn:hover {
-      background-color: #45a049;
-    }
-
-    .level-badge {
-      background-color: #FFEB3B;
-      border-radius: 50%;
-      padding: 15px 25px; /* Increased padding */
-      font-size: 22px; /* Increased font size */
-      font-weight: 600;
-      margin-top: 20px;
-      color: #333;
-      display: inline-block;
-      width: 180px;
-      text-align: center;
-      margin-bottom: 20px ;
-    }
-
-    .offer-box {
-      background: #f1f1f1;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .offer-box p {
-      font-size: 18px; /* Increased font size */
-      margin: 10px 0;
-    }
+    .contact-btn { background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; transition: 0.3s; }
+    .contact-btn:hover { background-color: #2563eb; }
   </style>
 </head>
-<body>
-  <div class="reward-section">
-    <h1 class="reward-header">Farmer Rewards</h1>
-    <div class="level-badge" id="level-badge">Beginner</div>
-    
-    <div class="progress-container">
-      <div class="progress-bar" id="progress-bar"></div>
+<body class="min-h-screen flex flex-col items-center p-6 relative">
+
+  <!-- Clouds -->
+  <div class="cloud w-32 h-12 top-10 left-0"></div>
+  <div class="cloud w-48 h-16 top-20 left-20"></div>
+  <div class="cloud w-40 h-14 top-32 left-10"></div>
+  <div class="cloud w-36 h-12 top-5 left-60"></div>
+
+  <!-- Header -->
+  <header class="w-full text-center mb-6 relative z-10">
+    <h1 class="text-4xl font-bold text-green-700">🌾 Sustainable Farming Rewards</h1>
+    <p class="text-gray-600 mt-2">Earn rewards, badges, and recognition for eco-friendly farming practices</p>
+  </header>
+
+  <!-- Reward Summary -->
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-5xl mb-6 z-10">
+    <div class="card bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-3xl shadow-lg text-center">
+      <h2 class="text-xl font-semibold text-green-700 section-title">Total Points</h2>
+      <p id="points" class="text-4xl font-bold mt-2 text-green-900">0</p>
     </div>
-    
-    <div class="level-info">
-      <p class="level-title">Current Level: <span id="level-text">Beginner Farmer</span></p>
-      <p class="points-text">Points Earned: <span id="points-text">0</span></p>
-      <p class="next-level" id="next-level">Next Level: Expert Farmer (100 points required)</p>
+    <div class="card bg-gradient-to-br from-yellow-100 to-yellow-200 p-6 rounded-3xl shadow-lg text-center">
+      <h2 class="text-xl font-semibold text-yellow-700 section-title">Total Badges</h2>
+      <p id="badgeCount" class="text-4xl font-bold mt-2 text-yellow-900">0</p>
     </div>
-
-    <div class="offer-box">
-      <h3>Exclusive Offers:</h3>
-      <div class="offers">
-        <div class="offer" id="offer1">10% Off on Tools</div>
-        <div class="offer" id="offer2">20% Off on Seeds</div>
-        <div class="offer" id="offer3">30% Off on Fertilizers</div>
-      </div>
+    <div class="card bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-3xl shadow-lg text-center">
+      <h2 class="text-xl font-semibold text-blue-700 section-title">Farmer Rank</h2>
+      <p id="farmerRank" class="text-4xl font-bold mt-2 text-blue-900">Unranked</p>
     </div>
+    <div class="card bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-3xl shadow-lg text-center">
+      <h2 class="text-xl font-semibold text-purple-700 section-title">Panchayat Rank</h2>
+      <p id="panchayatRank" class="text-4xl font-bold mt-2 text-purple-900">Unranked</p>
+    </div>
+  </section>
 
-    <div class="earn-points-btn" onclick="earnPoints()">Earn Points</div>
-    <p class="progress-text" id="progress-text">Keep earning to unlock more rewards!</p>
+  <!-- Badges Earned -->
+  <section class="card bg-white p-6 rounded-3xl shadow-lg w-full max-w-5xl mb-6 z-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 section-title">🎖 Badges Earned</h2>
+    <div id="badges" class="flex gap-4 flex-wrap"></div>
+  </section>
 
+  <!-- Leaderboard: Local -->
+  <section class="card bg-white p-6 rounded-3xl shadow-lg w-full max-w-5xl mb-6 z-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 section-title">🏆 Local Leaderboard</h2>
+    <ol id="leaderboardLocal" class="leaderboard list-decimal ml-6 space-y-2 text-gray-700"></ol>
+  </section>
+
+  <!-- Leaderboard: Panchayat -->
+  <section class="card bg-white p-6 rounded-3xl shadow-lg w-full max-w-5xl mb-6 z-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 section-title">🏆 Panchayat Leaderboard</h2>
+    <ol id="leaderboardPanchayat" class="leaderboard list-decimal ml-6 space-y-2 text-gray-700"></ol>
+  </section>
+
+  <!-- Farmer Info -->
+  <section class="card bg-white p-6 rounded-3xl shadow-lg w-full max-w-5xl mb-6 z-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 section-title">👩‍🌾 Farmer Information</h2>
+    <label class="block mb-2">Name:
+      <input id="farmerName" class="border rounded px-3 py-1 w-full" placeholder="Enter your name">
+    </label>
+    <label class="block mb-2">Village:
+      <input id="farmerVillage" class="border rounded px-3 py-1 w-full" placeholder="Enter your village">
+    </label>
+    <div class="mt-2 flex gap-2 flex-wrap">
+      <button id="saveData" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Data</button>
+      <button id="earnPoints" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Earn Points</button>
+      <button id="shareData" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Download Report (PDF)</button>
+    </div>
+  </section>
+
+  <!-- Reward History -->
+  <section class="card bg-white p-6 rounded-3xl shadow-lg w-full max-w-5xl mb-6 z-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 section-title">📜 Reward History</h2>
+    <ul id="history" class="list-disc ml-6 text-gray-700">50 Points Through Wheat</ul>
+    <ul id="history" class="list-disc ml-6 text-gray-700"></ul>
+    <ul id="history" class="list-disc ml-6 text-gray-700"></ul>
+    <ul id="history" class="list-disc ml-6 text-gray-700"></ul>
+    <ul id="history" class="list-disc ml-6 text-gray-700"></ul>
+  </section>
+
+<script>
+let points = 0;
+let badgeCount = 0;
+let farmerData = { name: "", village: "" };
+let history = [];
+
+let leaderboardData = [
+  { name: "Rahul Kumar", points: 950, village: "A" },
+  { name: "Sanjay Singh", points: 870, village: "A" },
+  { name: "Ramesh Yadav", points: 800, village: "A" },
+  { name: "Anshuman Singh", points: 0, village: "A" },
+  { name: "Pawan Sahu", points: 820, village: "B" },
+  { name: "Neha Sharma", points: 780, village: "B" },
+  { name: "Sneha Gupta", points: 750, village: "B" },
+  { name: "Priya Patel", points: 700, village: "C" },
+  { name: "Vikram Rathore", points: 680, village: "C" },
+  { name: "Amit Deshmukh", points: 620, village: "C" }
+];
+let phoneNo;
+async function fetchUserData() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login first!");
+    const res = await fetch("http://localhost:3000/api/user", { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error("Failed to fetch user data");
+    const user = await res.json();
+    phoneNo=user.phoneNo;
+
+    points = (user.pointsWheat || 0) + (user.pointsRice || 0) + (user.pointsCorn || 0) + (user.pointsBajra || 0);
+
+    farmerData.name = user.name;
+    document.getElementById("farmerName").value = user.name;
+    farmerData.village = user.location || "A"; // default to A if empty
+    document.getElementById("farmerVillage").value = farmerData.village;
+
+    const me = leaderboardData.find(f => f.name === "Anshuman Singh");
+    if(me) { me.name = farmerData.name; me.points = points; me.village = farmerData.village; }
+
+    updateUI();
+    updateLeaderboards();
+  } catch (err) {
+    console.error(err);
+    alert("Error fetching user data: " + err.message);
+  }
+}
+
+function updateUI() {
+  document.getElementById("points").textContent = points;
+
+  badgeCount = Math.floor(points / 100);
+  document.getElementById("badgeCount").textContent = badgeCount;
+
+  const badgesEl = document.getElementById("badges");
+  badgesEl.innerHTML = "";
+  if(points >= 300) addBadge("Trained");
+  if(points >= 500) addBadge("Eligible");
+  if(points >= 800) addBadge("Star Farmer");
+}
+
+function addBadge(name) {
+  const div = document.createElement("div");
+  div.className = "badge bg-green-100 text-green-700 px-3 py-1 rounded-full shadow";
+  div.textContent = name;
+  document.getElementById("badges").appendChild(div);
+}
+
+function updateLeaderboards() {
+  // Local leaderboard = all farmers
+  const lbLocal = document.getElementById("leaderboardLocal");
+  lbLocal.innerHTML = "";
+  leaderboardData.sort((a,b) => b.points - a.points);
+  leaderboardData.forEach((f,i) => {
+    const li = document.createElement("li");
+    li.className = "px-4 py-2 rounded-lg flex justify-between items-center font-medium";
+    li.innerHTML = `<span>${f.name} — ${f.points} pts</span> <button class="contact-btn" onclick="alert('Contact ${f.name}')">Contact</button>`;
+    if(i === 0) li.style.backgroundColor = "#FFD700";
+    else if(i === 1) li.style.backgroundColor = "#C0C0C0";
+    else if(i === 2) li.style.backgroundColor = "#CD7F32";
+    else li.style.backgroundColor = `hsl(${Math.random()*60+120}, 60%, 85%)`;
+    if(f.name === farmerData.name) li.style.border = "2px solid #22c55e";
+    lbLocal.appendChild(li);
+  });
+
+  const myRank = leaderboardData.findIndex(f => f.name === farmerData.name) + 1;
+  document.getElementById("farmerRank").textContent = `#${myRank}`;
+
+  // Panchayat leaderboard = only same village
+  const lbPanchayat = document.getElementById("leaderboardPanchayat");
+  lbPanchayat.innerHTML = "";
+  const panchayatFarmers = leaderboardData.filter(f => f.village === farmerData.village);
+  panchayatFarmers.sort((a,b) => b.points - a.points);
+  panchayatFarmers.forEach((f,i) => {
+    const li = document.createElement("li");
+    li.className = "px-4 py-2 rounded-lg flex justify-between items-center font-medium";
+    li.innerHTML = `<span>${f.name} — ${f.points} pts</span> <button class="contact-btn" onclick="alert('Contact ${f.name}')">Contact</button>`;
+    if(i === 0) li.style.backgroundColor = "#FFD700";
+    else if(i === 1) li.style.backgroundColor = "#C0C0C0";
+    else if(i === 2) li.style.backgroundColor = "#CD7F32";
+    else li.style.backgroundColor = `hsl(${Math.random()*60+120}, 60%, 85%)`;
+    if(f.name === farmerData.name) li.style.border = "2px solid #22c55e";
+    lbPanchayat.appendChild(li);
+  });
+
+  const panchayatRank = panchayatFarmers.findIndex(f => f.name === farmerData.name) + 1;
+  document.getElementById("panchayatRank").textContent = `#${panchayatRank || "-"}`;
+}
+
+// Save Data
+document.getElementById("saveData").addEventListener("click", () => {
+  farmerData.name = document.getElementById("farmerName").value;
+  farmerData.village = document.getElementById("farmerVillage").value || "A";
+  const me = leaderboardData.find(f => f.name === farmerData.name);
+  if(me) me.village = farmerData.village;
+  updateLeaderboards();
+  alert("Farmer data saved!");
+});
+
+// Earn points locally
+document.getElementById("earnPoints").addEventListener("click", () => {
+  const earned = Math.floor(Math.random() * 100) + 50;
+  points += earned;
+  addHistory(`+${earned} points earned`);
+  const me = leaderboardData.find(f => f.name === farmerData.name);
+  if(me) me.points = points;
+
+  updateUI();
+  updateLeaderboards();
+});
+
+function addHistory(text) {
+  history.push(text);
+  const li = document.createElement("li");
+  li.textContent = text;
+  document.getElementById("history").appendChild(li);
+}
+
+// PDF Export
+document.getElementById("shareData").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const img = new Image();
+  img.src = "Screenshot_2025-08-29_092552-removebg-preview.png"; // your logo URL
+  img.onload = function() {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const imgWidth = 100; // width on PDF
+    const imgHeight = (409/521) * imgWidth; // preserve ratio
+    const x = (pageWidth - imgWidth)/2;
     
-  </div>
+    doc.addImage(img, 'PNG', x, 10, imgWidth, imgHeight);
 
-  <script>
-    let points = 0;
-    let currentLevel = 'Novice Farmer';
-    let nextLevel = 'Expert Farmer';
-    let pointsRequired = 100;
+    doc.setFontSize(18); 
+    doc.setFont("helvetica","bold");
+    doc.text("Sustainable Farming Rewards Report", pageWidth/2, 10 + imgHeight + 10, {align: "center"});
+    
+    doc.setFontSize(12); 
+    doc.setFont("helvetica","normal");
+    doc.text(`Farmer Name: ${farmerData.name}`, pageWidth/2, 10 + imgHeight + 25, {align: "center"});
+    doc.text(`Village: ${farmerData.village || "Not saved"}`, pageWidth/2, 10 + imgHeight + 35, {align: "center"});
+    doc.text(`Points: ${points}`, pageWidth/2, 10 + imgHeight + 45, {align: "center"});
+    doc.text(`Total Badges: ${badgeCount}`, pageWidth/2, 10 + imgHeight + 55, {align: "center"});
+    
+    const farmerRank = document.getElementById("farmerRank").textContent;
+    const panchayatRank = document.getElementById("panchayatRank").textContent;
+    doc.text(`Farmer Rank: ${farmerRank}`, pageWidth/2, 10 + imgHeight + 65, {align: "center"});
+    doc.text(`Panchayat Rank: ${panchayatRank}`, pageWidth/2, 10 + imgHeight + 75, {align: "center"});
+    
+    doc.save("farmer_rewards.pdf");
+  }
+});
 
-    const levelText = document.getElementById('level-text');
-    const pointsText = document.getElementById('points-text');
-    const progressBar = document.getElementById('progress-bar');
-    const nextLevelText = document.getElementById('next-level');
-    const offer1 = document.getElementById('offer1');
-    const offer2 = document.getElementById('offer2');
-    const offer3 = document.getElementById('offer3');
-    const levelBadge = document.getElementById('level-badge');
-
-    function earnPoints() {
-      points += 25; // Increment points by 25 on each button press
-      updateProgress();
-    }
-
-    function updateProgress() {
-      const progressPercentage = Math.min((points / pointsRequired) * 100, 100);
-      progressBar.style.width = progressPercentage + '%';
-      pointsText.textContent = points;
-      
-      if (points < 100) {
-        currentLevel = 'Beginner Farmer';
-        nextLevel = 'Expert Farmer';
-        pointsRequired = 100;
-        updateLevel('Novice');
-      } else if (points >= 100 && points < 500) {
-        currentLevel = 'Expert Farmer';
-        nextLevel = 'Master Farmer';
-        pointsRequired = 500;
-        updateLevel('Expert');
-      } else {
-        currentLevel = 'Master Farmer';
-        nextLevel = 'Maxed';
-        pointsRequired = 0;
-        updateLevel('Master');
-      }
-
-      levelText.textContent = currentLevel;
-      nextLevelText.textContent = `Next Level: ${nextLevel} (${pointsRequired - points} points required)`;
-      
-      // Offer Changes
-      if (points >= 100) {
-        offer1.textContent = '20% Off on Tools';
-        offer2.textContent = '25% Off on Seeds';
-        offer3.textContent = '30% Off on Fertilizers';
-      }
-      if (points >= 500) {
-        offer1.textContent = '30% Off on Tools';
-        offer2.textContent = '40% Off on Seeds';
-        offer3.textContent = '50% Off on Fertilizers';
-      }
-    }
-
-    function updateLevel(level) {
-      if (level === 'Beginner ') {
-        levelBadge.textContent = 'Beginner ';
-        levelBadge.style.backgroundColor = '#FFEB3B';
-      } else if (level === 'Expert') {
-        levelBadge.textContent = 'Expert';
-        levelBadge.style.backgroundColor = '#FF9800';
-      } else if (level === 'Master') {
-        levelBadge.textContent = 'Master';
-        levelBadge.style.backgroundColor = '#FF5722';
-      }
-    }
-  </script>
+window.addEventListener("DOMContentLoaded", () => { fetchUserData(); });
+</script>
 </body>
 </html>

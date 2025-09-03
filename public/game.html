@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soil Soaker Mini-Game – Sustainable Farming Missions</title>
+  <style>
+    body {
+      background: #e0f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2e3d49;
+      padding: 20px;
+      text-align: center;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    header h1 {
+      font-size: 2.5em;
+      color: #00796b;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+    .missions-container {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      margin-bottom: 30px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .mission-card {
+      background: #ffffff;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .mission-card:hover {
+      transform: translateY(-5px);
+    }
+    .mission-card h3 {
+      color: #388e3c;
+      margin-bottom: 8px;
+    }
+    .mission-card .description {
+      font-size: 0.95em;
+      flex-grow: 1;
+      margin-bottom: 12px;
+      color: #555;
+    }
+    .mission-card .start-btn {
+      margin-top: auto;
+      padding: 10px 16px;
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .mission-card .start-btn:hover {
+      background-color: #2e7d32;
+    }
+    /* Game modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      overflow: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .game-modal {
+      background: #fff;
+      padding: 20px 30px 30px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 600px;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .close-btn {
+      position: absolute;
+      top: 12px; right: 16px;
+      font-size: 1.8em;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .close-btn:hover {
+      color: #444;
+    }
+    #gameArea {
+      background: #a5d6a7;
+      border: 2px solid #388e3c;
+      border-radius: 10px;
+      height: 320px;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .droplet {
+      width: 20px;
+      height: 20px;
+      background: #4fc3f7;
+      border-radius: 50%;
+      position: absolute;
+      animation: drop 3s linear forwards;
+    }
+    @keyframes drop {
+      0% { transform: translateY(-20px); opacity: 0.7; }
+      80% { opacity: 1; }
+      100% { transform: translateY(280px); opacity: 0.2; }
+    }
+    .soil-patch {
+      width: 60px;
+      height: 20px;
+      background: #8d6e63;
+      border-radius: 6px;
+      position: absolute;
+      bottom: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .soil-patch.watered {
+      background: #a1887f;
+    }
+    .score {
+      margin-top: 15px;
+      font-size: 1.3em;
+      color: #455a64;
+    }
+
+    /* Mixed cropping styles */
+    .mixed-cropping {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 15px 0;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .crop-card {
+      background: #a5d6a7;
+      border-radius: 8px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .crop-card.selected {
+      background-color: #4caf50;
+      color: white;
+      transform: scale(1.1);
+      cursor: default;
+    }
+    .crop-card.matched {
+      background-color: #388e3c;
+      color: white;
+      cursor: default;
+    }
+
+    /* Pest defender */
+    .soil-patch-pd {
+      width: 80px;
+      height: 30px;
+      background: #8d6e63;
+      border-radius: 8px;
+      position: absolute;
+      bottom: 10px;
+      cursor: default;
+      transition: background 0.3s;
+      box-shadow: inset 0 0 6px #5d4c3c;
+    }
+    .soil-patch-pd.damaged {
+      background: #b71c1c;
+      box-shadow: inset 0 0 10px #f44336;
+      filter: grayscale(0.8);
+    }
+    .pest {
+      position: absolute;
+      font-size: 1.8em;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease-out;
+      text-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+    .pest:active {
+      transform: scale(0.8);
+    }
+
+    /* Finish button */
+    #finishBtn {
+      margin-top: 18px;
+      padding: 12px 22px;
+      font-size: 1.1em;
+      background-color: #388e3c;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    #finishBtn:hover {
+      background-color: #2e7d32;
+    }
+
+    /* Full screen motivation overlay */
+    #motivationOverlay {
+      display: none;
+      position: fixed;
+      z-index: 1500;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #motivationOverlay .content {
+      max-width: 700px;
+      margin: 0 auto;
+      animation: fadeInScale 1s ease forwards;
+    }
+    #motivationOverlay h1 {
+      font-size: 2.8em;
+      margin-bottom: 0.3em;
+      font-weight: 700;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+      animation: slideInFromLeft 1.2s ease forwards;
+    }
+    #motivationOverlay p.motivating-text {
+      font-size: 1.6em;
+      margin: 0.8em 0 1.5em;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      animation: slideInFromRight 1.4s ease forwards;
+    }
+    #motivationOverlay p.description {
+      font-size: 1.1em;
+      line-height: 1.6;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeInUp 1.5s ease forwards;
+    }
+    #motivationOverlay button {
+      margin-top: 30px;
+      background: white;
+      color: #185a9d;
+      font-size: 1.1em;
+      font-weight: 600;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #motivationOverlay button:hover {
+      background-color: #d1e8ff;
+      color: #10375c;
+    }
+
+    @keyframes fadeInScale {
+      0% {opacity: 0; transform: scale(0.8);}
+      100% {opacity: 1; transform: scale(1);}
+    }
+    @keyframes slideInFromLeft {
+      0% {opacity: 0; transform: translateX(-100%);}
+      100% {opacity: 1; transform: translateX(0);}
+    }
+    @keyframes slideInFromRight {
+      0% {opacity: 0; transform: translateX(100%);}
+      100% {opacity: 1; transform: translateX(0);}
+    }
+    @keyframes fadeInUp {
+      0% {opacity: 0; transform: translateY(40px);}
+      100% {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🌱 Soil Soaker Game</h1>
+    <p>Drop water drops on dry soil patches to revive the land—and earn Eco Points!</p>
+  </header>
+
+  <div class="missions-container" role="list">
+    <div class="mission-card" role="listitem" id="mission1">
+      <h3>Mission 1: Organic Input Use</h3>
+      <p class="description">Water the dry soil patches to support compost and natural fertilizing, nurturing healthy soil.</p>
+      <button class="start-btn" onclick="startGame(1)">Start Game</button>
+    </div>
+    <div class="mission-card" role="listitem" id="mission2">
+      <h3>Mission 2: Mixed Cropping</h3>
+      <p class="description">Match pairs of crops to understand the benefits of mixed cropping – enhancing biodiversity and reducing pest attacks.</p>
+      <button class="start-btn" onclick="startGame(2)">Start Game</button>
+    </div>
+    <div class="mission-card" role="listitem" id="mission3">
+      <h3>Mission 3: Soil Health Management</h3>
+      <p class="description">Protect soil patches from pests by clicking on them. Learn how timely pest management protects soil and crops.</p>
+      <button class="start-btn" onclick="startGame(3)">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game Modal -->
+  <div class="modal" id="gameModal" aria-modal="true" role="dialog" aria-labelledby="gameTitle" tabindex="-1">
+    <div class="game-modal">
+      <span class="close-btn" onclick="closeGame()" aria-label="Close game modal">×</span>
+      <h2 id="gameTitle"></h2>
+      <div id="gameArea" tabindex="0" aria-live="polite" aria-atomic="true"></div>
+      <div class="score" aria-live="polite">Eco Points: <span id="scoreDisplay">0</span></div>
+      <button id="finishBtn" style="display:none;" onclick="finishGame()">Finish</button>
+      <p id="messageDisplay" style="margin-top:15px; font-weight:bold; color:#2e7d32;"></p>
+    </div>
+  </div>
+
+  <!-- Motivation Overlay -->
+  <div id="motivationOverlay" role="alertdialog" aria-modal="true" tabindex="-1">
+    <div class="content">
+      <h1 id="motivationTitle"></h1>
+      <p class="motivating-text" id="motivationText"></p>
+      <p class="description" id="motivationDesc"></p>
+      <button onclick="closeMotivation()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let score = 0;
+    let currentMission = 0;
+
+    // Variables for game elements to clean up
+    let dropletInterval, pestInterval;
+    let pests = [];
+    let soilPatchesPD = [];
+    let cropCards = [];
+    let firstSelection = null;
+    let secondSelection = null;
+    let matchesFound = 0;
+
+    // Crop emojis for Mixed Cropping
+    const crops = ['🌽','🌾','🥕','🍅','🥦','🍆','🌶','🥔'];
+
+    // Descriptions for motivation overlay
+    const motivationDetails = {
+      1: {
+        title: "Organic Input Use",
+        text: "🌿 Now it's your turn to apply organic inputs in your farm! Water the soil regularly to nurture compost and enrich the land.",
+        desc: "Organic inputs like compost and manure improve soil fertility naturally. Regular watering helps these inputs break down and nourish your crops. Adopt this eco-friendly practice to maintain healthy, sustainable soil!"
+      },
+      2: {
+        title: "Mixed Cropping",
+        text: "🌱 Now it's your turn to try mixed cropping on your farm! Plant different crops together to boost biodiversity and reduce pests.",
+        desc: "Mixed cropping involves growing two or more crops in proximity. It helps improve soil health, reduce pest outbreaks, and increase overall yield. Implementing this practice can make your farm more resilient and productive."
+      },
+      3: {
+        title: "Soil Health Management",
+        text: "🌼 Now it's your turn to manage pests effectively on your farm! Protect your soil by timely removing harmful insects and nurturing beneficial organisms.",
+        desc: "Healthy soil supports robust plant growth. Managing pests promptly prevents damage to soil and crops. Use eco-friendly pest control methods and keep your soil rich and alive for better harvests."
+      }
+    };
+
+    // Start selected game
+    function startGame(missionId) {
+      currentMission = missionId;
+      score = 0;
+      document.getElementById('scoreDisplay').textContent = score;
+      document.getElementById('messageDisplay').textContent = '';
+      document.getElementById('finishBtn').style.display = 'none';
+      document.getElementById('gameTitle').textContent = motivationDetails[missionId].title;
+      document.getElementById('gameModal').style.display = 'flex';
+
+      // Clear previous game area content
+      cleanupGameArea();
+
+      if (missionId === 1) {
+        setupOrganicInputGame();
+      } else if (missionId === 2) {
+        setupMixedCroppingGame();
+      } else if (missionId === 3) {
+        setupSoilHealthGame();
+      }
+    }
+
+    // Close game modal and cleanup
+    function closeGame() {
+      document.getElementById('gameModal').style.display = 'none';
+      cleanupGameArea();
+    }
+
+    // Cleanup game area & variables depending on game
+    function cleanupGameArea() {
+      clearInterval(dropletInterval);
+      clearInterval(pestInterval);
+      pests.forEach(p => p.remove());
+      pests = [];
+      soilPatchesPD.forEach(p => p.remove());
+      soilPatchesPD = [];
+      cropCards.forEach(c => c.remove());
+      cropCards = [];
+      firstSelection = null;
+      secondSelection = null;
+      matchesFound = 0;
+      const gameArea = document.getElementById('gameArea');
+      gameArea.innerHTML = '';
+      document.getElementById('finishBtn').style.display = 'none';
+      document.getElementById('messageDisplay').textContent = '';
+    }
+
+    /* ======= Game 1: Organic Input Use (Soil watering) ======= */
+    function setupOrganicInputGame() {
+      const gameArea = document.getElementById('gameArea');
+      gameArea.style.position = 'relative';
+
+      // Create soil patches at bottom
+      for (let i = 0; i < 3; i++) {
+        const patch = document.createElement('div');
+        patch.classList.add('soil-patch');
+        patch.style.left = `${40 + i * 120}px`;
+        patch.style.bottom = '14px';
+        patch.addEventListener('click', () => {
+          if (!patch.classList.contains('watered')) {
+            patch.classList.add('watered');
+            score += 5;
+            document.getElementById('scoreDisplay').textContent = "score";
+            checkOrganicFinish();
+          }
+        });
+        gameArea.appendChild(patch);
+      }
+
+      // Droplet creation and animation
+      function createDroplet() {
+        const drop = document.createElement('div');
+        drop.classList.add('droplet');
+        drop.style.left = `${Math.random() * (gameArea.clientWidth - 20)}px`;
+        gameArea.appendChild(drop);
+
+        // Remove droplet after animation ends
+        drop.addEventListener('animationend', () => {
+          drop.remove();
+        });
+      }
+      dropletInterval = setInterval(createDroplet, 800);
+      createDroplet();
+
+      // Show finish button after all patches watered
+      function checkOrganicFinish() {
+        const wateredCount = gameArea.querySelectorAll('.soil-patch.watered').length;
+        if (wateredCount === 3) {
+          document.getElementById('messageDisplay').textContent = "Great job! All soil patches are watered!";
+          document.getElementById('finishBtn').style.display = 'inline-block';
+        }
+      }
+    }
+
+    /* ======= Game 2: Mixed Cropping (Memory Match) ======= */
+    function setupMixedCroppingGame() {
+      const gameArea = document.getElementById('gameArea');
+      gameArea.style.position = 'static';
+
+      // Prepare cards data: 4 pairs (8 cards)
+      let pairs = crops.slice(0,4);
+      let cards = [...pairs, ...pairs];
+      cards.sort(() => Math.random() - 0.5);
+
+      // Create grid container
+      const grid = document.createElement('div');
+      grid.classList.add('mixed-cropping');
+      gameArea.appendChild(grid);
+
+      // Create cards
+      cards.forEach((crop, i) => {
+        const card = document.createElement('div');
+        card.classList.add('crop-card');
+        card.dataset.crop = crop;
+        card.textContent = '❓';
+        card.setAttribute('aria-label', 'Hidden crop card');
+        card.tabIndex = 0;
+
+        card.addEventListener('click', () => {
+          if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+          if (secondSelection) return; // Prevent selecting more than 2 cards
+
+          card.textContent = crop;
+          card.classList.add('selected');
+          card.setAttribute('aria-label', `Crop card showing ${crop}`);
+
+          if (!firstSelection) {
+            firstSelection = card;
+          } else {
+            secondSelection = card;
+            checkMatch();
+          }
+        });
+
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+          }
+        });
+
+        grid.appendChild(card);
+        cropCards.push(card);
+      });
+
+      function checkMatch() {
+        if (!firstSelection || !secondSelection) return;
+
+        if (firstSelection.dataset.crop === secondSelection.dataset.crop) {
+          // Match found
+          firstSelection.classList.add('matched');
+          secondSelection.classList.add('matched');
+          score += 10;
+          document.getElementById('scoreDisplay').textContent = score;
+          matchesFound++;
+
+          resetSelections();
+
+          if (matchesFound === 4) {
+            document.getElementById('messageDisplay').textContent = "Awesome! You matched all crops!";
+            document.getElementById('finishBtn').style.display = 'inline-block';
+          }
+        } else {
+          // No match - flip back after short delay
+          setTimeout(() => {
+            firstSelection.textContent = '❓';
+            secondSelection.textContent = '❓';
+            firstSelection.classList.remove('selected');
+            secondSelection.classList.remove('selected');
+            firstSelection.setAttribute('aria-label', 'Hidden crop card');
+            secondSelection.setAttribute('aria-label', 'Hidden crop card');
+            resetSelections();
+          }, 1000);
+        }
+      }
+
+      function resetSelections() {
+        firstSelection = null;
+        secondSelection = null;
+      }
+    }
+
+    /* ======= Game 3: Soil Health Management (Pest Defender) ======= */
+    function setupSoilHealthGame() {
+      const gameArea = document.getElementById('gameArea');
+      gameArea.style.position = 'relative';
+
+      // Create 3 soil patches to protect
+      for (let i = 0; i < 3; i++) {
+        const patch = document.createElement('div');
+        patch.classList.add('soil-patch-pd');
+        patch.style.left = `${40 + i * 140}px`;
+        patch.style.bottom = '10px';
+        gameArea.appendChild(patch);
+        soilPatchesPD.push(patch);
+      }
+
+      let pestsCaught = 0;
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const messageDisplay = document.getElementById('messageDisplay');
+      const finishBtn = document.getElementById('finishBtn');
+
+      // Spawn pests that move across the screen
+      function spawnPest() {
+        const pest = document.createElement('div');
+        pest.classList.add('pest');
+        pest.textContent = '🐛';
+        pest.style.top = `${Math.random() * 240 + 20}px`;
+        pest.style.left = '-40px';
+        pest.clicked = false;
+
+        let speed = 1 + Math.random() * 2;
+        function movePest() {
+          let leftPos = parseFloat(pest.style.left);
+          if (isNaN(leftPos)) leftPos = -40;
+          leftPos += speed;
+          if(leftPos > gameArea.clientWidth){
+            // Pest reached soil patch - damage one randomly
+            if(soilPatchesPD.length > 0){
+              const patch = soilPatchesPD[Math.floor(Math.random() * soilPatchesPD.length)];
+              if(!patch.classList.contains('damaged')){
+                patch.classList.add('damaged');
+                score = Math.max(0, score - 5);
+                scoreDisplay.textContent = score;
+                messageDisplay.textContent = "Oh no! A pest damaged your soil!";
+              }
+            }
+            pest.remove();
+            pests = pests.filter(p => p !== pest);
+            return;
+          }
+          pest.style.left = leftPos + 'px';
+          requestAnimationFrame(movePest);
+        }
+        requestAnimationFrame(movePest);
+
+        pest.addEventListener('click', () => {
+          if (pest.clicked) return;
+          pest.clicked = true;
+          pestsCaught++;
+          score += 5;
+          scoreDisplay.textContent = `score`;
+          messageDisplay.textContent = `Good job! You caught ${pestsCaught} pests!`;
+          pest.textContent = '💥';
+          setTimeout(() => {
+            pest.remove();
+            pests = pests.filter(p => p !== pest);
+            checkFinish();
+          }, 300);
+        });
+
+        gameArea.appendChild(pest);
+        pests.push(pest);
+      }
+
+      // Spawn pests every 1.5 seconds, max 8 pests total
+      let spawnCount = 0;
+      pestInterval = setInterval(() => {
+        if(spawnCount < 8){
+          spawnPest();
+          spawnCount++;
+        } else {
+          clearInterval(pestInterval);
+        }
+      }, 1500);
+
+      function checkFinish() {
+        // Finish when caught 5 pests or all pests spawned and caught most
+        if(pestsCaught >= 5 || (spawnCount >= 8 && pests.length === 0)){
+          finishBtn.style.display = 'inline-block';
+          messageDisplay.textContent = "Well done! You protected the soil!";
+        }
+      }
+    }
+
+    // Show motivation overlay after finishing a game
+    function finishGame() {
+      closeGame();
+      const overlay = document.getElementById('motivationOverlay');
+      const details = motivationDetails[currentMission];
+      if(!details) return;
+
+      document.getElementById('motivationTitle').textContent = details.title;
+      document.getElementById('motivationText').textContent = details.text;
+      document.getElementById('motivationDesc').textContent = details.desc;
+      overlay.style.display = 'flex';
+      overlay.focus();
+    }
+
+    // Close motivation overlay
+    function closeMotivation() {
+      const overlay = document.getElementById('motivationOverlay');
+      overlay.style.display = 'none';
+    }
+
+    // Accessibility: Close motivation with Escape key
+    document.addEventListener('keydown', e => {
+      const overlay = document.getElementById('motivationOverlay');
+      if(e.key === "Escape" && overlay.style.display === 'flex') {
+        closeMotivation();
+      }
+    });
+
+  </script>
+</body>
+</html>

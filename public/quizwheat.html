@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌿 Sustainable Farming Quiz</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      overflow-x: hidden;
+    }
+
+    /* ========== INTRO PAGE ========== */
+    .intro-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+      background: linear-gradient(to right, #00c9ff, #92fe9d);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .intro-text {
+      font-size: 2.2rem;
+      color: #fff;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(0,0,0,0.2);
+      animation: floatText 3s ease-in-out infinite;
+      max-width: 80%;
+    }
+
+    @keyframes floatText {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .start-btn {
+      margin-top: 40px;
+      padding: 15px 35px;
+      font-size: 1.1rem;
+      background: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .start-btn:hover {
+      background: #27ae60;
+      transform: scale(1.05);
+    }
+
+    /* ========== QUIZ SECTION ========== */
+    .quiz-container {
+      display: none;
+      background: #fff;
+      border-radius: 15px;
+      padding: 40px 30px;
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    #question {
+      font-size: 1.3rem;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    #options {
+      list-style: none;
+      padding: 0;
+    }
+
+    #options li {
+      margin-bottom: 15px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #e8f5e9;
+      border: 2px solid #a5d6a7;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .option-btn:hover {
+      background-color: #c8e6c9;
+      transform: scale(1.02);
+    }
+
+    .option-btn.correct {
+      background-color: #66bb6a;
+      color: white;
+      border-color: #388e3c;
+    }
+
+    .option-btn.wrong {
+      background-color: #ef5350;
+      color: white;
+      border-color: #c62828;
+    }
+
+    #next-btn {
+      margin-top: 25px;
+      padding: 12px 25px;
+      background-color: #43a047;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      transition: background 0.3s;
+    }
+
+    #next-btn:hover {
+      background-color: #2e7d32;
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    #badge {
+      margin-top: 10px;
+      font-size: 1.5rem;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Intro Page ===== -->
+  <div class="intro-screen" id="intro">
+    <div class="intro-text">
+      🌟 It’s Quiz Time Now...<br>
+      Answer the Questions and Earn Rewards! 🌿
+    </div>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- ===== Quiz Section ===== -->
+  <div class="quiz-container" id="quiz-container">
+    <h1>🌱 Sustainable Farming Quiz 🎮</h1>
+    <div id="quiz-box">
+      <div id="question">Loading...</div>
+      <ul id="options"></ul>
+      <button id="next-btn">Next</button>
+      <div id="result"></div>
+      <div id="badge"></div>
+    </div>
+  </div>
+
+  <!-- ===== Script ===== -->
+  <script>
+    function startQuiz() {
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';
+    }
+
+    const quizData = [
+      {
+        question: "🐛 Why are ladybugs great friends to farmers?",
+        options: [
+          "They sing to crops",
+          "They eat harmful pests like aphids",
+          "They fertilize plants",
+          "They do the farmer's taxes"
+        ],
+        correct: 1
+      },
+      {
+        question: "🌾 What is crop rotation good for?",
+        options: [
+          "Making crops dizzy",
+          "Improving soil and reducing pests",
+          "Growing crops in circles",
+          "Saving tractor fuel"
+        ],
+        correct: 1
+      },
+      {
+        question: "🌧 What do cover crops do when not being eaten?",
+        options: [
+          "Watch Netflix",
+          "Protect the soil and prevent erosion",
+          "Play with earthworms",
+          "Drink rainwater only"
+        ],
+        correct: 1
+      },
+      {
+        question: "🪱 Why are earthworms called nature's plows?",
+        options: [
+          "They wear tiny plow hats",
+          "They aerate and enrich the soil",
+          "They pull mini tractors",
+          "They move like plows"
+        ],
+        correct: 1
+      },
+      {
+        question: "🌳 Agroforestry means...",
+        options: [
+          "Growing crops under and around trees",
+          "Farming in forests only",
+          "Using forest animals to plant",
+          "Cutting all trees for space"
+        ],
+        correct: 0
+      },
+      {
+        question: "💧 What's a water-saving farming technique?",
+        options: [
+          "Flood everything!",
+          "Irrigation with sensors and drip systems",
+          "Let it rain always",
+          "Using milk instead of water"
+        ],
+        correct: 1
+      },
+      {
+        question: "♻ Composting helps farmers by...",
+        options: [
+          "Making pizza",
+          "Reducing waste and enriching soil",
+          "Attracting raccoons",
+          "Saving space in the barn"
+        ],
+        correct: 1
+      },
+      {
+        question: "🐞 What is IPM in farming?",
+        options: [
+          "I Plant Mangoes",
+          "Integrated Pest Management (using eco methods)",
+          "Instant Plant Magic",
+          "Insects Party Management"
+        ],
+        correct: 1
+      },
+      {
+        question: "🌻 Why avoid monoculture (one crop only)?",
+        options: [
+          "It's too colorful",
+          "It weakens soil and invites pests",
+          "It looks boring",
+          "It confuses tractors"
+        ],
+        correct: 1
+      },
+      {
+        question: "🌎 Sustainable farming means...",
+        options: [
+          "Farming forever without hurting the earth",
+          "Using gold tools",
+          "Farming only at night",
+          "Planting square vegetables"
+        ],
+        correct: 0
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const nextBtn = document.getElementById('next-btn');
+    const resultEl = document.getElementById('result');
+    const badgeEl = document.getElementById('badge');
+
+    function loadQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = `Q${currentQuestion + 1}: ${q.question}`;
+      optionsEl.innerHTML = '';
+      resultEl.textContent = '';
+      badgeEl.innerHTML = '';
+      nextBtn.style.display = 'none';
+
+      q.options.forEach((option, index) => {
+        const li = document.createElement('li');
+        const button = document.createElement('button');
+        button.textContent = option;
+        button.classList.add('option-btn');
+        button.addEventListener('click', () => selectOption(button, index));
+        li.appendChild(button);
+        optionsEl.appendChild(li);
+      });
+    }
+
+    function selectOption(button, selectedIndex) {
+      const correctIndex = quizData[currentQuestion].correct;
+      const buttons = document.querySelectorAll('.option-btn');
+
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('correct', 'wrong');
+      });
+
+      if (selectedIndex === correctIndex) {
+        button.classList.add('correct');
+        score++;
+      } else {
+        button.classList.add('wrong');
+        buttons[correctIndex].classList.add('correct');
+      }
+
+      nextBtn.style.display = 'inline-block';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showFinalResult();
+      }
+    });
+
+    function showFinalResult() {
+      questionEl.textContent = "🎉 Quiz Complete!";
+      optionsEl.innerHTML = '';
+      nextBtn.style.display = 'none';
+
+      let title = '';
+      let badge = '';
+      if (score <= 3) {
+        title = "🌱 Sprout";
+        badge = "🟢 Green Beginner";
+      } else if (score <= 6) {
+        title = "🌿 Planter";
+        badge = "🟡 Farming Apprentice";
+      } else if (score <= 9) {
+        title = "🌻 Eco Farmer";
+        badge = "🟠 Sustainability Hero";
+      } else {
+        title = "🌟 Agri Master";
+        badge = "🌟 Eco Champion";
+      }
+
+      resultEl.innerHTML = `
+        <p>Your Score: <strong>${score} / ${quizData.length}</strong></p>
+        <p>Title Earned: <strong>${title}</strong></p>
+      `;
+      badgeEl.innerHTML = `🏅 Badge Unlocked: <strong>${badge}</strong>`;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

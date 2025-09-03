@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🌾 Rice Crop — Mini‑Game Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .canvas-wrap { position: relative; width: 100%; max-width: 720px; aspect-ratio: 3/2; }
+  canvas { width: 100%; height: 100%; background: #e7f3e7; border-radius: 0.75rem; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  .xp-chip { position:absolute; font-weight:700; animation: floatUp 800ms ease-out forwards; }
+  @keyframes floatUp { from { opacity: 0; transform: translateY(10px) scale(.9);} to { opacity: 1; transform: translateY(-24px) scale(1);} }
+  .pop { animation: pop .45s ease both; }
+  @keyframes pop { 0% { transform: scale(.7); opacity:.4;} 60%{ transform:scale(1.15);} 100%{ transform: scale(1); opacity:1;} }
+  .dot { width: 12px; height: 12px; border-radius: 9999px; }
+</style>
+</head>
+<body class="bg-green-50 min-h-screen flex flex-col">
+
+<header class="bg-green-700 text-white p-4 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <span class="text-2xl">🌾</span>
+    <h1 class="text-2xl font-bold">Rice Crop — Mini‑Game Dashboard</h1>
+  </div>
+  <div class="flex items-center gap-3 text-sm">
+    <span id="badge" class="hidden md:inline-block bg-white/15 px-3 py-1 rounded-full">Farm Rank: <strong id="rank">Novice</strong></span>
+    <button id="resetBtn" class="bg-white text-green-700 font-semibold px-3 py-1 rounded hover:bg-green-100">Reset</button>
+  </div>
+</header>
+
+<main class="flex-1 p-6 grid lg:grid-cols-3 gap-6">
+  <section class="lg:col-span-1 bg-white rounded-xl shadow p-5">
+    <h2 class="text-lg font-semibold mb-3">Farm Quests</h2>
+    <ol id="taskList" class="space-y-3"></ol>
+    <div class="mt-6">
+      <label class="block mb-1 font-medium">Overall Progress</label>
+      <div class="w-full bg-gray-200 h-3 rounded overflow-hidden">
+        <div id="overallBar" class="h-3 bg-green-600" style="width:0%"></div>
+      </div>
+      <p id="overallText" class="text-xs mt-1 text-gray-600">0% complete</p>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+      <div class="bg-green-50 border border-green-200 rounded p-3">
+        <div class="text-gray-600">XP</div>
+        <div id="xp" class="text-2xl font-extrabold">0</div>
+      </div>
+      <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+        <div class="text-gray-600">Stage</div>
+        <div id="stageName" class="text-2xl font-extrabold">Seedling</div>
+      </div>
+    </div>
+    <div id="badges" class="mt-6 hidden">
+      <h3 class="font-semibold mb-2">Badges</h3>
+      <div id="badgeList" class="flex flex-wrap gap-2"></div>
+    </div>
+  </section>
+
+  <section class="lg:col-span-2 bg-white rounded-xl shadow p-5 flex flex-col">
+    <div class="flex items-center justify-between mb-3">
+      <h2 id="gameTitle" class="text-lg font-semibold">Pick a quest to begin</h2>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="dot bg-gray-300"></span><span>Idle</span>
+      </div>
+    </div>
+
+    <div class="canvas-wrap relative select-none">
+      <canvas id="game" width="960" height="640"></canvas>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-sm text-gray-600">Tip: Use mouse / touch to play. Finish the current quest to unlock the next stage.</div>
+      <button id="howBtn" class="text-sm px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">How to play</button>
+    </div>
+  </section>
+</main>
+
+<dialog id="how" class="rounded-xl shadow-xl p-0 w-[min(90vw,560px)]">
+  <div class="p-5">
+    <h3 class="text-lg font-semibold">How to Play</h3>
+    <ul class="list-disc pl-6 mt-2 text-sm text-gray-700 space-y-1">
+      <li><b>Plough</b>: Drag the plough to turn most soil tiles dark.</li>
+      <li><b>Sow</b>: Click tilled tiles to drop seeds. Fill the target number.</li>
+      <li><b>Irrigate</b>: Drag watering can. Keep it over crops to fill their water bars.</li>
+      <li><b>Fertilize</b>: Click to sprinkle pellets on crops. Hit the target.</li>
+      <li><b>Harvest</b>: Click ripe rice quickly before it falls.</li>
+    </ul>
+    <div class="mt-4 text-right">
+      <button id="closeHow" class="px-3 py-1 rounded bg-green-600 text-white">Got it</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="photoModal" class="rounded-xl shadow-xl p-5 w-[min(90vw,560px)]">
+  <h3 class="text-lg font-semibold mb-2">Submit your farm photo</h3>
+  <input type="file" accept="image/*" id="photoInput" class="mb-3"/>
+  <div class="text-right">
+    <button id="submitPhoto" class="px-3 py-1 rounded bg-green-600 text-white">Submit</button>
+  </div>
+</dialog>
+
+<script>
+const tasks = [
+  { key: 'plough', name: 'Plough the Field', xp: 40 },
+  { key: 'sow', name: 'Sow Rice Seeds', xp: 60 },
+  { key: 'irrigate', name: 'Irrigate Field', xp: 70 },
+  { key: 'fertilize', name: 'Apply Fertilizer', xp: 50 },
+  { key: 'harvest', name: 'Harvest Rice', xp: 90 },
+];
+
+const stageNames = ['Seedling','Tilled','Seeded','Watered','Fertilized','Mature'];
+
+const state = {
+  completed: [], xp: 0, growthStage: 0, rank: 'Novice', badges: [],
+  restore() { const raw = localStorage.getItem('riceGameState'); if(!raw) return; try{Object.assign(this, JSON.parse(raw));}catch{} },
+  persist() { localStorage.setItem('riceGameState', JSON.stringify(this)); }
+};
+state.restore();
+
+const taskListEl = document.getElementById('taskList');
+const overallBar = document.getElementById('overallBar');
+const overallText = document.getElementById('overallText');
+const xpEl = document.getElementById('xp');
+const stageNameEl = document.getElementById('stageName');
+const rankEl = document.getElementById('rank');
+const badgeWrap = document.getElementById('badges');
+const badgeList = document.getElementById('badgeList');
+const resetBtn = document.getElementById('resetBtn');
+const how = document.getElementById('how');
+const photoModal = document.getElementById('photoModal');
+const photoInput = document.getElementById('photoInput');
+const submitPhoto = document.getElementById('submitPhoto');
+
+document.getElementById('howBtn').onclick = () => how.showModal();
+document.getElementById('closeHow').onclick = () => how.close();
+resetBtn.addEventListener('click', () => {
+  localStorage.removeItem('riceGameState');
+  state.completed=[]; state.xp=0; state.growthStage=0; state.rank='Novice'; state.badges=[];
+  renderTasks(); updateHUD(); game.reset();
+});
+
+function renderTasks() {
+  taskListEl.innerHTML='';
+  tasks.forEach((t,i)=>{
+    const done=state.completed.includes(i);
+    const locked=!done && i>0 && !state.completed.includes(i-1);
+    const li=document.createElement('li');
+    li.className='border rounded-lg px-3 py-2 flex items-center justify-between ' + (done?'bg-green-50 border-green-200':'bg-yellow-50 border-yellow-200');
+    li.innerHTML=`<div>
+      <div class="font-medium">${t.name}</div>
+      <div class="text-xs text-gray-600">${done?'Completed':locked?'Locked — finish previous quest':'Ready'}</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-500">+${t.xp} XP</span>
+        <button ${locked?'disabled':''} data-i="${i}" class="start px-3 py-1 rounded text-white ${done?'bg-green-500 hover:bg-green-600':locked?'bg-gray-300':'bg-green-600 hover:bg-green-700'}">${done?'Replay':'Play'}</button>
+      </div>`;
+    taskListEl.appendChild(li);
+  });
+  taskListEl.querySelectorAll('button.start').forEach(btn=>{ btn.addEventListener('click', e=>{ startQuest(+e.currentTarget.dataset.i); }); });
+  const pct=Math.round((state.completed.length/tasks.length)*100);
+  overallBar.style.width=pct+'%';
+  overallText.textContent=pct+'% complete';
+}
+
+function updateHUD(){
+  xpEl.textContent=state.xp;
+  stageNameEl.textContent=stageNames[state.growthStage]||stageNames.at(-1);
+  rankEl.textContent=state.rank;
+  if(state.badges.length){
+    badgeWrap.classList.remove('hidden');
+    badgeList.innerHTML='';
+    state.badges.forEach(b=>{
+      const chip=document.createElement('div');
+      chip.className='px-3 py-1 rounded-full border bg-white pop';
+      chip.textContent=b;
+      badgeList.appendChild(chip);
+    });
+  }else badgeWrap.classList.add('hidden');
+}
+
+function grantXP(x,cx,cy){
+  state.xp+=x; state.persist(); updateHUD();
+  const chip=document.createElement('div');
+  chip.className='xp-chip';
+  chip.style.left=(cx||20)+'px'; chip.style.top=(cy||20)+'px';
+  chip.textContent='+'+x+' XP';
+  document.querySelector('.canvas-wrap').appendChild(chip);
+  setTimeout(()=>chip.remove(),900);
+  const old=state.rank;
+  if(state.xp>=300 && state.rank!=='Master Farmer') state.rank='Master Farmer';
+  else if(state.xp>=150 && state.rank==='Novice') state.rank='Skilled';
+  if(state.rank!==old){ state.persist(); updateHUD(); document.getElementById('badge').classList.add('pop'); setTimeout(()=>document.getElementById('badge').classList.remove('pop'),600);}
+}
+
+let pendingQuestIndex = null;
+function completeQuest(i){
+  pendingQuestIndex = i;
+  photoInput.value = '';
+  photoModal.showModal();
+}
+
+submitPhoto.addEventListener('click',()=>{
+  if(!photoInput.files.length) return alert("Please select a photo!");
+  const i = pendingQuestIndex;
+  pendingQuestIndex = null;
+  photoModal.close();
+  if(!state.completed.includes(i)){
+    state.completed.push(i);
+    state.growthStage=Math.min(5,state.growthStage+1);
+    grantXP(tasks[i].xp, game.lastPointer.x, game.lastPointer.y);
+    maybeBadge(i);
+    state.persist();
+    renderTasks(); updateHUD();
+  }else{
+    grantXP(Math.floor(tasks[i].xp/5), game.lastPointer.x, game.lastPointer.y);
+  }
+});
+
+function maybeBadge(i){
+  const map={0:'Soil Tamer',1:'Seed Sower',2:'Water Master',3:'Fertilizer Guru',4:'Golden Harvester'};
+  const label=map[i];
+  if(label && !state.badges.includes(label)) state.badges.push(label);
+}
+
+// ===== Game Engine =====
+const canvas=document.getElementById('game'); const ctx=canvas.getContext('2d');
+const game={width:canvas.width,height:canvas.height,running:false,current:null,lastPointer:{x:20,y:20},reset(){this.running=false; this.current=null; ctx.clearRect(0,0,this.width,this.height); drawBackground();},start(key){this.current=key; this.running=true; tick();}};
+let pointerDown=false;
+canvas.addEventListener('pointerdown',e=>{pointerDown=true;updatePointer(e);});
+canvas.addEventListener('pointerup',()=>pointerDown=false);
+canvas.addEventListener('pointermove',e=>updatePointer(e));
+function updatePointer(e){const rect=canvas.getBoundingClientRect(); game.lastPointer.x=(e.clientX-rect.left)*(canvas.width/rect.width); game.lastPointer.y=(e.clientY-rect.top)*(canvas.height/rect.height);}
+
+// ===== Background & Quests =====
+function drawBackground(){
+  const grad=ctx.createLinearGradient(0,0,0,game.height); grad.addColorStop(0,'#cce9ff'); grad.addColorStop(.6,'#e7f3e7'); ctx.fillStyle=grad; ctx.fillRect(0,0,game.width,game.height);
+  ctx.beginPath(); ctx.arc(80,80,40,0,Math.PI*2); ctx.fillStyle='#ffeb99'; ctx.fill();
+  ctx.fillStyle='#c7e3b0'; ctx.fillRect(0, game.height-180, game.width, 180);
+  ctx.fillStyle='#d7b98a'; ctx.fillRect(60, game.height-220, game.width-120, 160);
+  ctx.strokeStyle='#8b5e34'; ctx.lineWidth=4; ctx.strokeRect(60, game.height-220, game.width-120, 160);
+}
+
+const grid={x:80,y:game.height-210,w:game.width-160,h:140,cols:20,rows:10};
+function gridEach(fn){const cw=grid.w/grid.cols,ch=grid.h/grid.rows;for(let r=0;r<grid.rows;r++){for(let c=0;c<grid.cols;c++){fn({c,r,x:grid.x+c*cw,y:grid.y+r*ch,w:cw,h:ch});}}}
+function inCell(px,py,cell){return px>=cell.x && px<=cell.x+cell.w && py>=cell.y && py<=cell.y+cell.h;}
+
+const quests={
+  plough:{title:'Plough the Field — cover 80% of tiles',tilled:new Set(),draw(){drawBackground(); ctx.fillStyle='rgba(110,64,30,0.55)'; const cw=grid.w/grid.cols,ch=grid.h/grid.rows; this.tilled.forEach(k=>{const [c,r]=k.split(':').map(Number); ctx.fillRect(grid.x+c*cw,grid.y+r*ch,cw,ch);}); ctx.fillStyle='#555'; ctx.fillRect(game.lastPointer.x-18,game.lastPointer.y-6,36,12); ctx.fillStyle='#999'; ctx.fillRect(game.lastPointer.x-10,game.lastPointer.y-14,20,8);},update(dt){if(!pointerDown)return; gridEach(cell=>{if(inCell(game.lastPointer.x,game.lastPointer.y,cell)) this.tilled.add(cell.c+':'+cell.r);}); if(this.tilled.size/(grid.cols*grid.rows)>=0.8){completeQuest(0); startQuest(1);}},reset(){this.tilled.clear();}},
+  sow:{title:'Sow Rice Seeds — plant 150 seeds',seeds:new Set(),draw(){drawBackground();ctx.fillStyle='#6b4226'; this.seeds.forEach(k=>{const [c,r]=k.split(':').map(Number); const cx=grid.x+c*grid.w/grid.cols+grid.w/grid.cols/2; const cy=grid.y+r*grid.h/grid.rows+grid.h/grid.rows/2; ctx.beginPath();ctx.arc(cx,cy,2.2,0,Math.PI*2);ctx.fill();}); ctx.fillStyle='#b7791f'; ctx.fillRect(game.lastPointer.x-14,game.lastPointer.y-18,28,22); ctx.fillStyle='#f6e05e'; ctx.fillRect(game.lastPointer.x-10,game.lastPointer.y-16,20,8);},update(dt){if(pointerDown) gridEach(cell=>{if(inCell(game.lastPointer.x,game.lastPointer.y,cell)) this.seeds.add(cell.c+':'+cell.r);}); if(this.seeds.size>=150){completeQuest(1); startQuest(2);}},reset(){this.seeds.clear();}},
+  irrigate:{title:'Irrigate Field — fill water to 100%',water:0,draw(){drawBackground(); ctx.fillStyle='#e2e8f0'; ctx.fillRect(80,40,game.width-160,18); ctx.fillStyle='#63b3ed'; ctx.fillRect(80,40,(game.width-160)*(this.water/100),18); ctx.strokeStyle='#2b6cb0'; ctx.strokeRect(80,40,game.width-160,18); ctx.fillStyle='#3182ce'; ctx.fillRect(game.lastPointer.x-18, game.lastPointer.y-20, 36, 28); ctx.fillStyle='#2c5282'; ctx.fillRect(game.lastPointer.x+10, game.lastPointer.y-26, 18, 6); if(pointerDown){ctx.fillStyle='rgba(99,179,237,0.8)'; for(let i=0;i<5;i++) ctx.fillRect(game.lastPointer.x-4+i*2,game.lastPointer.y+6+i*8,2,6);}},update(dt){if(pointerDown) this.water=Math.min(100,this.water+dt*0.03); else this.water=Math.max(0,this.water-dt*0.01); if(this.water>=100){completeQuest(2); startQuest(3);}},reset(){this.water=0;}},
+  fertilize:{title:'Apply Fertilizer — sprinkle 60 pellets',pellets:[],draw(){drawBackground(); ctx.fillStyle='#ecc94b'; this.pellets.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();}); ctx.fillStyle='#d69e2e'; ctx.fillRect(game.lastPointer.x-16,game.lastPointer.y-22,32,26);},update(dt){if(pointerDown && Math.random()<0.5) this.pellets.push({x:game.lastPointer.x+(Math.random()*20-10), y:game.lastPointer.y+(Math.random()*20-10)}); if(this.pellets.length>=60){completeQuest(3); startQuest(4);}},reset(){this.pellets=[];}},
+  harvest:{title:'Harvest — collect 25 ripe rice stalks',stalks:[],score:0,spawnTimer:0,draw(){drawBackground(); ctx.fillStyle='#1f2937'; ctx.font='16px sans-serif'; ctx.fillText('Collected: '+this.score+' / 25',80,36); this.stalks.forEach(s=>{ctx.save(); ctx.translate(s.x,s.y); ctx.rotate(s.rot); ctx.fillStyle='#d4a038'; ctx.beginPath(); ctx.ellipse(0,-16,6,12,0,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#276749'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-10); ctx.stroke(); ctx.restore();});},update(dt){this.spawnTimer-=dt; if(this.spawnTimer<=0){this.spawnTimer=400+Math.random()*400; this.spawnStalk();} this.stalks.forEach(s=>s.ttl-=dt); this.stalks=this.stalks.filter(s=>s.ttl>0); if(pointerDown){this.stalks=this.stalks.filter(s=>{const dx=game.lastPointer.x-s.x,dy=game.lastPointer.y-s.y; const hit=Math.hypot(dx,dy)<20; if(hit) { this.score++; grantXP(2,s.x,s.y); } return !hit;});} if(this.score>=25){completeQuest(4); game.current=null; game.running=false;}},spawnStalk(){const x=80+20+Math.random()*(game.width-200); const y=game.height-220+30+Math.random()*(120); this.stalks.push({x,y,ttl:2500,rot:(Math.random()-.5)*0.4});},reset(){this.stalks=[]; this.score=0; this.spawnTimer=0;}}
+};
+
+function startQuest(index){
+  const t=tasks[index];
+  for(const key in quests) quests[key].reset();
+  game.start(t.key);
+  document.getElementById('gameTitle').textContent=quests[t.key].title;
+}
+
+// Main loop
+let last=performance.now();
+function tick(now){
+  if(!now) now=performance.now();
+  const dt=now-last; last=now;
+  if(game.running && game.current){
+    quests[game.current].update(dt);
+    quests[game.current].draw();
+  }else drawBackground();
+  requestAnimationFrame(tick);
+}
+
+drawBackground();
+renderTasks();
+updateHUD();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

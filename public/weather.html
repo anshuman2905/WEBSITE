@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌦 Advanced Weather</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    .search-box button {
+      background: #0077ff;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .search-box button:hover {
+      background: #005fcc;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    h2 {
+      margin-top: 0;
+      color: #222;
+    }
+    .forecast-container {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding-bottom: 8px;
+    }
+    .forecast-card {
+      min-width: 100px;
+      background: linear-gradient(135deg, #ffdfba, #ffa07a);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+    }
+    .forecast-card:hover {
+      transform: scale(1.05);
+    }
+    .forecast-card img {
+      width: 50px;
+      height: 50px;
+    }
+    .advisory {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2d572c;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Search Box -->
+    <div class="search-box">
+      <input class="location-local" type="text" id="locationInput" placeholder="Enter city/location">
+      <button onclick="getWeather()">Search</button>
+    </div>
+
+    <!-- Current Weather -->
+    <div class="card" id="currentWeather">
+      <h2>Current Weather</h2>
+      <p id="currentDetails">Loading weather data...</p>
+    </div>
+
+    <!-- Forecast -->
+    <div class="card">
+      <h2>Forecast</h2>
+      <div class="forecast-container" id="forecast"></div>
+    </div>
+
+    <!-- Agro Advisory -->
+    <div class="card">
+      <h2>Agro-Advisory</h2>
+      <p class="advisory" id="advisoryText">No data yet.</p>
+    </div>
+
+    <!-- Graph -->
+    <div class="card">
+      <h2>Temperature Trend</h2>
+      <canvas id="weatherChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "2e608a7af6edf85989dd4782cf1ef70a"; // your OpenWeather API key
+    let chart;
+
+    // Fetch weather using city name
+    async function fetchWeatherByCity(city) {
+      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+      fetchAndRender(weatherUrl, forecastUrl);
+    }
+
+    // Fetch + Render weather and forecast
+    async function fetchAndRender(weatherUrl, forecastUrl) {
+      try {
+        const [weatherRes, forecastRes] = await Promise.all([
+          fetch(weatherUrl),
+          fetch(forecastUrl)
+        ]);
+
+        const weatherData = await weatherRes.json();
+        const forecastData = await forecastRes.json();
+
+        if (weatherData.cod !== 200) {
+          document.getElementById("currentDetails").innerText = "❌ Location not found.";
+          return;
+        }
+
+        // Current Weather
+        document.getElementById("currentDetails").innerHTML = `
+          <strong>${weatherData.name}</strong><br>
+          🌡 Temp: ${weatherData.main.temp}°C <br>
+          🤔 Feels like: ${weatherData.main.feels_like}°C <br>
+          💧 Humidity: ${weatherData.main.humidity}% <br>
+          🔽 Pressure: ${weatherData.main.pressure} hPa <br>
+          💨 Wind: ${weatherData.wind.speed} m/s <br>
+          ☁ Condition: ${weatherData.weather[0].description}
+        `;
+
+        // Forecast
+        const forecastContainer = document.getElementById("forecast");
+        forecastContainer.innerHTML = "";
+        const list = forecastData.list.slice(0, 10);
+        list.forEach(item => {
+          const dt = new Date(item.dt * 1000);
+          const time = dt.getHours() + ":00";
+          const icon = item.weather[0].icon;
+          const temp = item.main.temp.toFixed(1);
+          const pop = Math.round(item.pop * 100);
+
+          const card = document.createElement("div");
+          card.className = "forecast-card";
+          card.innerHTML = `
+            <div>${time}</div>
+            <img src="http://openweathermap.org/img/wn/${icon}@2x.png" alt="icon">
+            <div>${temp}°C</div>
+            <div>🌧 ${pop}%</div>
+          `;
+          forecastContainer.appendChild(card);
+        });
+
+        // Advisory
+        let advice = "✅ Good farming conditions.";
+        if (weatherData.main.humidity > 80) {
+          advice = "⚠ High pest risk. Take precautions.";
+        } else if (weatherData.main.temp < 15) {
+          advice = "🌱 Good time for sowing wheat.";
+        }
+        document.getElementById("advisoryText").innerText = advice;
+
+        // Graph (Temperature Trend)
+        const labels = list.map(item => {
+          const dt = new Date(item.dt * 1000);
+          return dt.getHours() + ":00";
+        });
+        const temps = list.map(item => item.main.temp);
+
+        if (chart) chart.destroy();
+        const ctx = document.getElementById("weatherChart").getContext("2d");
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Temperature (°C)",
+              data: temps,
+              borderColor: "#0077ff",
+              backgroundColor: "rgba(0,119,255,0.2)",
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: "#0077ff"
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: false }
+            }
+          }
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert("Error fetching weather data!");
+      }
+    }
+
+    // Manual search
+    async function getWeather() {
+      const location = document.getElementById("locationInput").value;
+      if (location) {
+        fetchWeatherByCity(location);
+      }
+    }
+
+    // On page load → get user info from backend
+    window.onload = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById("currentDetails").innerText = "❌ Please login first.";
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/user', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) {
+          document.getElementById("currentDetails").innerText = "❌ Failed to fetch user info.";
+          return;
+        }
+
+        const user = await res.json();
+        if (user.location) {
+          // Autofill location box
+          document.getElementById("locationInput").value = user.location;
+          // Fetch weather automatically
+          fetchWeatherByCity(user.location);
+        } else {
+          document.getElementById("currentDetails").innerText = "❌ No location set for your account.";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("currentDetails").innerText = "❌ Error loading user info.";
+      }
+    };
+  </script>
+</body>
+</html>
