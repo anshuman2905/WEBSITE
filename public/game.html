@@ -350,6 +350,10 @@
       <h1 id="motivationTitle"></h1>
       <p class="motivating-text" id="motivationText"></p>
       <p class="description" id="motivationDesc"></p>
+      
+      <!-- YouTube video container -->
+      <div id="motivationVideo" style="margin-top:20px;"></div>
+
       <button onclick="closeMotivation()">Close</button>
     </div>
   </div>
@@ -387,6 +391,13 @@
         text: "🌼 Now it's your turn to manage pests effectively on your farm! Protect your soil by timely removing harmful insects and nurturing beneficial organisms.",
         desc: "Healthy soil supports robust plant growth. Managing pests promptly prevents damage to soil and crops. Use eco-friendly pest control methods and keep your soil rich and alive for better harvests."
       }
+    };
+
+    // YouTube videos for each mission
+    const motivationVideos = {
+      1: "https://www.youtube.com/embed/Yu7D0wQs8Yo",
+      2: "https://www.youtube.com/embed/jQI4gUiM2sI",
+      3: "https://www.youtube.com/embed/xFIOvYgiIfY"
     };
 
     // Start selected game
@@ -451,7 +462,7 @@
           if (!patch.classList.contains('watered')) {
             patch.classList.add('watered');
             score += 5;
-            document.getElementById('scoreDisplay').textContent = "score";
+            document.getElementById('scoreDisplay').textContent = score;
             checkOrganicFinish();
           }
         });
@@ -630,7 +641,7 @@
           pest.clicked = true;
           pestsCaught++;
           score += 5;
-          scoreDisplay.textContent = `score`;
+          scoreDisplay.textContent = score;
           messageDisplay.textContent = `Good job! You caught ${pestsCaught} pests!`;
           pest.textContent = '💥';
           setTimeout(() => {
@@ -656,7 +667,6 @@
       }, 1500);
 
       function checkFinish() {
-        // Finish when caught 5 pests or all pests spawned and caught most
         if(pestsCaught >= 5 || (spawnCount >= 8 && pests.length === 0)){
           finishBtn.style.display = 'inline-block';
           messageDisplay.textContent = "Well done! You protected the soil!";
@@ -669,11 +679,18 @@
       closeGame();
       const overlay = document.getElementById('motivationOverlay');
       const details = motivationDetails[currentMission];
+      const videoURL = motivationVideos[currentMission];
+
       if(!details) return;
 
       document.getElementById('motivationTitle').textContent = details.title;
       document.getElementById('motivationText').textContent = details.text;
       document.getElementById('motivationDesc').textContent = details.desc;
+
+      // Inject YouTube video
+      const videoContainer = document.getElementById('motivationVideo');
+      videoContainer.innerHTML = `<iframe width="560" height="315" src="${videoURL}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+
       overlay.style.display = 'flex';
       overlay.focus();
     }
@@ -682,6 +699,9 @@
     function closeMotivation() {
       const overlay = document.getElementById('motivationOverlay');
       overlay.style.display = 'none';
+
+      // Remove video when closing overlay
+      document.getElementById('motivationVideo').innerHTML = '';
     }
 
     // Accessibility: Close motivation with Escape key
@@ -695,3 +715,4 @@
   </script>
 </body>
 </html>
+

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gamified High-Profit Farming</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap');
+body {
+  margin: 0;
+  font-family: 'Quicksand', sans-serif;
+  transition: background 2s;
+  overflow-x: hidden;
+}
+h1 {
+  text-align: center;
+  margin: 30px 0;
+  font-size: 2.5em;
+  color: #2e7d32;
+  text-shadow: 1px 1px 5px #fff;
+}
+.crop-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* three crops in a row */
+  gap: 25px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+  z-index: 2;
+  position: relative;
+}
+.crop-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  cursor: pointer;
+  text-align: center;
+  padding: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.crop-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+.crop-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  transition: transform 0.3s;
+}
+.crop-card:hover img {
+  transform: scale(1.1);
+}
+.crop-name {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #1b5e20;
+}
+.crop-info {
+  display: none;
+  background: #f1f8e9;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 0.95em;
+  color: #33691e;
+  animation: fadeIn 0.5s ease forwards;
+}
+@keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+.listen-btn, .harvest-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+.listen-btn { background: #81c784; color: white; }
+.listen-btn:hover { background: #4caf50; }
+.harvest-btn { background: #ffb74d; color: white; }
+.harvest-btn:hover { background: #ff9800; }
+.progress-container { width: 100%; background: #c8e6c9; border-radius: 12px; overflow: hidden; margin-top: 10px; }
+.progress-bar { height: 12px; width: 0%; background: #66bb6a; border-radius: 12px; transition: width 1s ease-in-out; }
+.points-display { position: fixed; top: 20px; right: 20px; background: #81c784; padding: 15px 25px; border-radius: 20px; color: white; font-weight: 700; font-size: 1.2em; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 3; }
+.notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #aed581; color: #33691e; padding: 12px 20px; border-radius: 15px; font-weight: 600; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); animation: slideUp 0.5s forwards; z-index: 3; }
+@keyframes slideUp { from {transform: translateX(-50%) translateY(50px); opacity: 0;} to {transform: translateX(-50%) translateY(0); opacity: 1;} }
+.floating-circle { position: absolute; border-radius: 50%; opacity: 0.2; animation: float 6s infinite ease-in-out; pointer-events: none; z-index:1; }
+@keyframes float { 0% { transform: translateY(0) translateX(0);} 50% { transform: translateY(-20px) translateX(10px);} 100% { transform: translateY(0) translateX(0);} }
+.weather { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.rain-drop { position:absolute; width:2px; height:15px; background: rgba(173,216,230,0.6); animation: rain 1s linear infinite; }
+@keyframes rain { 0% {transform: translateY(-20px);} 100% {transform: translateY(100vh);} }
+#harvestPopup { position: fixed; top:50%; left:50%; transform: translate(-50%,-50%); background: #fff; padding:20px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.3); max-width: 600px; width: 90%; display: none; z-index: 10; }
+#harvestPopup video { width: 100%; border-radius: 12px; }
+#harvestPopup p { margin-top: 10px; font-size: 0.95em; color:#333; }
+#closePopup { position:absolute; top:10px; right:15px; background:#ff5252; border:none; color:#fff; border-radius:50%; width:30px; height:30px; font-weight:bold; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h1>🌱 Other Profitable Crops 🌱</h1>
+<div class="points-display">Points: 0</div>
+<div class="notification" id="notification"></div>
+
+<div class="crop-container">
+  <!-- First Row -->
+  <div class="crop-card" data-season="autumn" data-video="https://www.w3schools.com/html/mov_bbb.mp4" 
+       data-info="मखाना एक जलीय फसल है, जो स्थिर तालाबों में उगाई जाती है। इसकी कटाई शरद ऋतु में होती है। पानी की उचित मात्रा रखें, गाद निकालते रहें और पौधों को रोग-मुक्त रखने के लिए सफाई नियमित करें। मखाना पोषण से भरपूर है और बाजार में अच्छा दाम मिलता है।" 
+       onclick="toggleInfo(this)">
+    <img src="https://up.yimg.com/ib/th/id/OIP.k3YkE2i4q2FTYNSL_UbU8gHaHa?pid=Api&rs=1&c=1&qlt=95&w=111&h=111" alt="Makhana">
+    <div class="crop-name">Makhana</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+
+  <div class="crop-card" data-season="any" data-video="https://www.youtube.com/watch?v=BwktUQm7ZlQ&pp=ygUZbXVzaHJvb20ga2Fpc2UgdWdhdGUgaGFpbg%3D%3D" 
+       data-info="मशरूम इनडोर परिस्थितियों में उगते हैं। अंधेरा और आर्द्र वातावरण आवश्यक है। कंपोस्टेड ऑर्गेनिक सामग्री पर उगाएँ। कटाई 3-4 सप्ताह में करें। नियमित पानी दें और रोग नियंत्रण के लिए सफाई रखें। मशरूम पोषण में उच्च और बाजार में लाभकारी हैं।" 
+       onclick="toggleInfo(this)">
+    <img src="https://tse1.mm.bing.net/th/id/OIP.q01I9tuSVLeyXtRZ1e_HlAHaEj?pid=Api&P=0&h=180" alt="Mushrooms">
+    <div class="crop-name">Mushrooms</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+
+  <div class="crop-card" data-season="summer" data-video="https://www.w3schools.com/html/movie.mp4" 
+       data-info="लीची उष्णकटिबंधीय क्षेत्रों में उगाई जाती है। नियमित रूप से पानी दें और पौधों को छंटाई करें। मिट्टी की जाँच करें और सूरज की रोशनी पर्याप्त मात्रा में दें। कीट और रोग नियंत्रण के लिए जैविक उपाय अपनाएँ। लीची बाजार में उच्च मांग वाली फसल है और अच्छा लाभ देती है।" 
+       onclick="toggleInfo(this)">
+    <img src="https://up.yimg.com/ib/th/id/OIP.q7wEeVSS4bfaHwEJnhSKqQHaFn?pid=Api&rs=1&c=1&qlt=95&w=156&h=118" alt="Litchi">
+    <div class="crop-name">Litchi</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+
+  <!-- Second Row -->
+  <div class="crop-card" data-season="summer" data-video="https://www.w3schools.com/html/movie.mp4"
+       data-info="एवोकाडो उष्णकटिबंधीय और उपोष्णकटिबंधीय क्षेत्रों में उगता है। अच्छी मिट्टी और पर्याप्त सूर्यप्रकाश दें। पानी नियमित रूप से दें। फल पकने में 6-8 महीने लगते हैं। एवोकाडो बाजार में बहुत लाभकारी है।"
+       onclick="toggleInfo(this)">
+    <img src="https://tse4.mm.bing.net/th/id/OIP.pfovvApg2H_R1uYImakGYgHaF2?pid=Api&P=0&h=180" alt="Avocado">
+    <div class="crop-name">Avocado</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+
+  <div class="crop-card" data-season="summer" data-video="https://www.w3schools.com/html/movie.mp4"
+       data-info="आम उष्णकटिबंधीय क्षेत्रों में उगता है। पर्याप्त धूप और पानी दें। कटाई के लिए फल को पकने दें। आम बहुत पोषणयुक्त और बाजार में लाभकारी फसल है।"
+       onclick="toggleInfo(this)">
+    <img src="https://tse3.mm.bing.net/th/id/OIP.Voxo2ToBhqExrzryCo73ZwHaD4?pid=Api&P=0&h=180" alt="Mango">
+    <div class="crop-name">Mango</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+
+  <div class="crop-card" data-season="spring" data-video="https://www.w3schools.com/html/mov_bbb.mp4"
+       data-info="स्ट्रॉबेरी ठंडे और समशीतोष्ण क्षेत्रों में उगती है। नियमित पानी दें और सूर्यप्रकाश पर्याप्त रखें। फल जल्दी पकते हैं। स्ट्रॉबेरी बाजार में लाभकारी है।"
+       onclick="toggleInfo(this)">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/PerfectStrawberry.jpg" alt="Strawberry">
+    <div class="crop-name">Strawberry</div>
+    <div class="crop-info">
+      <div class="progress-container"><div class="progress-bar"></div></div>
+      <button class="listen-btn" onclick="speakText(event,this.closest('.crop-card').dataset.info)">सुनें</button>
+      <button class="harvest-btn" onclick="harvestCrop(event,this)">Harvest</button>
+    </div>
+  </div>
+</div>
+
+<!-- Harvest Popup -->
+<div id="harvestPopup">
+  <button id="closePopup" onclick="closePopup()">×</button>
+  <video controls id="harvestVideo"></video>
+  <p id="harvestText"></p>
+</div>
+
+<div class="weather" id="weather"></div>
+
+<script>
+let points = 0;
+let seasons = ['spring','summer','autumn','winter'];
+let currentSeasonIndex = 0;
+let seasonColors = {spring:'#a8e6cf', summer:'#ffd54f', autumn:'#ffcc80', winter:'#90caf9'};
+setInterval(()=>{
+  currentSeasonIndex=(currentSeasonIndex+1)%seasons.length;
+  document.body.style.background=seasonColors[seasons[currentSeasonIndex]];
+  showNotification('🌱 Season changed to '+seasons[currentSeasonIndex]+'!');
+},20000);
+
+function toggleInfo(card){
+  const info = card.querySelector('.crop-info');
+  info.style.display=info.style.display==='block'?'none':'block';
+  const bar = card.querySelector('.progress-bar');
+  if(bar && bar.style.width==='0%') growCrop(bar, card.dataset.season);
+}
+
+function speakText(event,text){
+  event.stopPropagation();
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = 'hi-IN';
+  msg.rate = 1;
+  msg.pitch = 1.1;
+  window.speechSynthesis.speak(msg);
+}
+
+function growCrop(bar,cropSeason){
+  let width=0;
+  const interval=setInterval(()=>{
+    if(width>=100){ clearInterval(interval); showNotification('🌟 Crop fully grown! Ready to harvest!'); }
+    else { let multiplier=1; if(cropSeason!=='any' && cropSeason!==seasons[currentSeasonIndex]) multiplier=0.5; width+=2*multiplier; bar.style.width=width+'%'; }
+  },150);
+}
+
+function harvestCrop(event,btn){
+  event.stopPropagation();
+  const card=btn.closest('.crop-card');
+  const bar=btn.closest('.crop-info').querySelector('.progress-bar');
+  if(parseInt(bar.style.width)<100){ showNotification('Crop not fully grown yet!'); return;}
+  const bonus=Math.random()<0.3?5:0;
+  points+=10+bonus;
+  document.querySelector('.points-display').innerText='Points: '+points;
+  showNotification(`Harvest successful! +${10+bonus} points 🌟`);
+  bar.style.width='0%';
+  const popup=document.getElementById('harvestPopup');
+  document.getElementById('harvestVideo').src=card.dataset.video;
+  document.getElementById('harvestText').innerText=card.dataset.info;
+  popup.style.display='block';
+}
+
+function closePopup(){ document.getElementById('harvestPopup').style.display='none'; }
+
+function showNotification(text){
+  const notif=document.getElementById('notification');
+  notif.innerText=text;
+  notif.style.display='block';
+  setTimeout(()=>{notif.style.display='none';},2500);
+}
+
+const colors=['#81c784','#aed581','#ffd54f','#ff8a65','#4fc3f7'];
+for(let i=0;i<15;i++){
+  const circle=document.createElement('div');
+  circle.classList.add('floating-circle');
+  circle.style.width=circle.style.height=(Math.random()*50+20)+'px';
+  circle.style.background=colors[Math.floor(Math.random()*colors.length)];
+  circle.style.left=Math.random()*100+'%';
+  circle.style.top=Math.random()*100+'%';
+  circle.style.animationDuration=(4+Math.random()*4)+'s';
+  document.body.appendChild(circle);
+}
+
+function createRain(){
+  const weather=document.getElementById('weather');
+  for(let i=0;i<50;i++){
+    const drop=document.createElement('div');
+    drop.classList.add('rain-drop');
+    drop.style.left=Math.random()*100+'%';
+    drop.style.animationDuration=(0.5+Math.random())+'s';
+    weather.appendChild(drop);
+  }
+}
+createRain();
+</script>
+
+</body>
+</html>

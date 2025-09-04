@@ -1,222 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farming Community</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-             background: linear-gradient(to bottom right, #a5d956, #4da2ca);
-            color: #333;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bhagalpur Farmer Community — Enhanced</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    :root{
+      --bg:#f0f7f4; --card:#ffffff; --accent:#2d8659; --accent-2:#3fa577; --muted:#5a6b63; --glass:rgba(255,255,255,0.8);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;background:var(--bg);color:#1a2a24}
+    header{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;padding:14px 18px;display:flex;align-items:center;gap:12px}
+    header h1{margin:0;font-size:18px}
+    .sub{font-size:12px;opacity:.9}
 
-        h1 {
-            text-align: center;
-            margin: 30px 0;
-            font-size: 3em;
-            font-weight: bold;
-            background: linear-gradient(90deg, #4caf50, #5dcf8a, #388e3c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-            font-family: 'Georgia', 'Palatino', serif;
-        }
+    /* top controls */
+    .controls{display:flex;gap:12px;padding:12px 18px;align-items:center;background:transparent;flex-wrap:wrap}
+    select,input{padding:8px 10px;border-radius:8px;border:1px solid #cfd8d3;background:white}
+    .btn{background:var(--accent);color:white;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(26,42,36,.08);color:var(--accent)}
 
-        .community-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    .layout{display:flex;gap:18px;padding:12px 18px}
+    .left{flex:1;min-width:320px}
+    .right{width:480px;max-width:48%;min-width:320px}
 
-        .member-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #fefffd;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
+    /* community grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 6px 22px rgba(16,30,24,.06);position:relative;overflow:hidden;transition:transform .18s}
+    .card:hover{transform:translateY(-6px)}
+    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,#e6fbf0,#d6f7e7);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .meta{display:flex;gap:12px;align-items:center}
+    h3{margin:0;font-size:16px}
+    .muted{color:var(--muted);font-size:13px}
 
-        .member-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
+    .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .badge{background:linear-gradient(180deg,#fff,#f0fff4);padding:6px 8px;border-radius:999px;font-size:12px;border:1px solid #e1f3e7}
+    .status{display:inline-flex;align-items:center;gap:8px}
+    .dot{width:10px;height:10px;border-radius:50%}
 
-        .member-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            flex: 1;
-        }
+    .actions{display:flex;gap:8px;margin-top:8px}
+    .small{padding:6px 8px;border-radius:8px;border:1px solid #e6efe9;background:transparent;cursor:pointer}
 
-        .member-name {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #000000;
-            margin-bottom: 5px;
-        }
+    /* map */
+    #map{height:700px;border-radius:12px;border:1px solid #e6efe9}
 
-        .member-locality {
-            font-size: 1.5em;
-            color: #352525;
-        }
+    /* weather card */
+    .card.weather{display:flex;justify-content:space-between;align-items:center;padding:14px}
+    .weather .temp{font-size:34px;font-weight:700}
+    .weather .desc{font-size:13px;color:var(--muted)}
 
-        .contact-btn {
-            padding: 8px 15px;
-            background-color: #2e7d32;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-        }
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(10,15,12,.45);display:none;place-items:center;z-index:50}
+    .modal{background:var(--card);padding:14px;border-radius:12px;min-width:320px;box-shadow:0 8px 40px rgba(10,20,16,.35)}
+    .modal h3{margin-top:0}
+    .form-row{display:flex;gap:8px;flex-wrap:wrap}
+    .form-row input,.form-row textarea,select{flex:1;padding:8px;border-radius:8px;border:1px solid #e8eee8}
 
-        .contact-btn:hover {
-            background-color: #1b5e20;
-        }
+    /* toasts */
+    .toast{position:fixed;right:18px;bottom:18px;background:#0e2a21;color:white;padding:10px 14px;border-radius:8px;opacity:0;transform:translateY(12px);transition:all .24s}
+    .toast.show{opacity:1;transform:translateY(0)}
 
-        @media (max-width: 600px) {
-            .member-card {
-                flex-direction: column;
-                align-items: center;
-            }
+    /* message popup */
+    .message-pop{position:fixed;right:18px;bottom:80px;background:var(--card);padding:12px;border-radius:10px;width:320px;border:1px solid #e6efe9;box-shadow:0 8px 24px rgba(0,0,0,.08);display:none}
+    .message-pop textarea{width:100%;height:80px;border-radius:8px;padding:8px;border:1px solid #e8eee8}
 
-            .contact-btn {
-                margin-top: 10px;
-            }
-        }
-    </style>
+    /* endorse animation */
+    .like-count{display:inline-block;min-width:36px;text-align:center}
+    .join-cta{margin-left:auto}
+
+    @media (max-width:1000px){
+      .layout{flex-direction:column}
+      #map{height:420px}
+      .right{width:100%}
+    }
+  </style>
 </head>
 <body>
-    <h1>Farming Community</h1>
-    <div class="community-container">
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Rajesh Kumar</div>
-                <div class="member-locality">Punjab</div>
-            </div>
-            <a href="mailto:rajesh@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Pintu Yadav</div>
-                <div class="member-locality">Bihar</div>
-            </div>
-            <a href="mailto:pintu@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Ramesh Singh</div>
-                <div class="member-locality">Uttar Pradesh</div>
-            </div>
-            <a href="mailto:ramesh@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Suresh Patel</div>
-                <div class="member-locality">Gujarat</div>
-            </div>
-            <a href="mailto:suresh@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Mahesh Sharma</div>
-                <div class="member-locality">Rajasthan</div>
-            </div>
-            <a href="mailto:mahesh@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Anil Kumar</div>
-                <div class="member-locality">Haryana</div>
-            </div>
-            <a href="mailto:anil@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Vikram Singh</div>
-                <div class="member-locality">Madhya Pradesh</div>
-            </div>
-            <a href="mailto:vikram@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Ravi Kumar</div>
-                <div class="member-locality">Tamil Nadu</div>
-            </div>
-            <a href="mailto:ravi@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Ajay Yadav</div>
-                <div class="member-locality">Bihar</div>
-            </div>
-            <a href="mailto:ajay@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Sunil Kumar</div>
-                <div class="member-locality">Uttarakhand</div>
-            </div>
-            <a href="mailto:sunil@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Prakash Singh</div>
-                <div class="member-locality">Himachal Pradesh</div>
-            </div>
-            <a href="mailto:prakash@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Manoj Kumar</div>
-                <div class="member-locality">Karnataka</div>
-            </div>
-            <a href="mailto:manoj@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Raghav Yadav</div>
-                <div class="member-locality">Jharkhand</div>
-            </div>
-            <a href="mailto:raghav@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Deepak Sharma</div>
-                <div class="member-locality">Rajasthan</div>
-            </div>
-            <a href="mailto:deepak@example.com" class="contact-btn">Contact</a>
-        </div>
-
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">Rohit Kumar</div>
-                <div class="member-locality">Punjab</div>
-            </div>
-            <a href="mailto:rohit@example.com" class="contact-btn">Contact</a>
-        </div>
+  <header>
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.5 5.5L20 9l-4 3 1 6-5-3-5 3 1-6L4 9l5.5-1.5L12 2z" fill="#fff"/></svg>
     </div>
+    <div style="flex:1">
+      <h1>Bhagalpur Farmer Community</h1>
+      <div class="sub">Panchayat & village network — connect, endorse and help</div>
+    </div>
+    <div class="join-cta">
+      <button class="btn" id="openJoin">+ Join Community</button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <h4>Districts</h4>
+    <select id="districtFilter"><option>All</option><option>Bhagalpur</option><option>Banka</option><option>Munger</option></select>
+    <h4>Panchayats</h4>
+    <select id="panchayatFilter"><option>All</option><option>Sabour</option><option>Nathnagar</option><option>Jagdishpur</option><option>Goradih</option><option>Shahkund</option><option>Sultanganj</option><option>Kahalgaon</option></select>
+    <input id="searchBox" placeholder="Search by name / crop / skill" />
+    <button class="btn" id="filterApply">Apply</button>
+    <button class="btn ghost" id="locMe">Center on Bhagalpur</button>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <div class="card weather" style="width:220px">
+        <div>
+          <div class="temp" id="wtemp">--°C</div>
+          <div class="desc" id="wdesc">Loading weather...</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--muted)">Bhagalpur</div>
+          <div style="font-size:12px;color:var(--muted)" id="wtime"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="left">
+      <div class="grid" id="communityList"></div>
+    </div>
+    <div class="right">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- modal: join -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <h3>Join Community</h3>
+      <div class="form-row" style="margin-top:8px">
+        <input id="jname" placeholder="Full name" />
+        <input id="jphone" placeholder="Phone (10 digits)" />
+      </div>
+      <div class="form-row" style="margin-top:8px">
+        <input id="jdistrict" placeholder="District (e.g., Bhagalpur)" />
+        <input id="jpanchayat" placeholder="Panchayat" />
+      </div>
+      <div class="form-row" style="margin-top:8px">
+        <input id="jcrop" placeholder="Crops / Skills (comma separated)" />
+      </div>
+      <div class="form-row" style="margin-top:8px">
+        <input id="jlat" placeholder="Latitude (optional)" />
+        <input id="jlng" placeholder="Longitude (optional)" />
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn ghost" id="closeJoin">Cancel</button>
+        <button class="btn" id="submitJoin">Join</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- message popup -->
+  <div class="message-pop" id="messagePop">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <strong id="msgTo">Message</strong>
+      <button style="margin-left:auto" class="small" id="closeMsg">Close</button>
+    </div>
+    <textarea id="msgText" placeholder="Write your message..."></textarea>
+    <div style="margin-top:8px;text-align:right">
+      <button class="btn" id="sendMsg">Send</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // --- Sample data (enhanced) ---
+    const farmers = [
+      { id:1, name: "Ramesh Kumar", crop: "Makhana, Paddy", district: "Bhagalpur", panchayat: "Sabour", phone: "9876543210", lat: 25.237, lng: 87.044, badges:["Makhana Pro","Organic"], online:true, likes:12 },
+      { id:2, name: "Sita Devi", crop: "Wheat, Mustard", district: "Bhagalpur", panchayat: "Nathnagar", phone: "9876501234", lat: 25.249, lng: 87.002, badges:["Women Leader"], online:false, likes:5 },
+      { id:3, name: "Amit Singh", crop: "Vegetables", district: "Banka", panchayat: "Jagdishpur", phone: "9123456780", lat: 24.882, lng: 86.918, badges:["Irrigation"], online:true, likes:3 },
+      { id:4, name: "Priya Kumari", crop: "Banana", district: "Munger", panchayat: "Sabour", phone: "9012345678", lat: 25.374, lng: 86.473, badges:["Banana Champion"], online:false, likes:22 },
+      { id:5, name: "Sunil Mandal", crop: "Maize, Pulses", district: "Bhagalpur", panchayat: "Goradih", phone: "9934567890", lat: 25.209, lng: 87.134, badges:["Pest-Free"], online:true, likes:1 },
+      { id:6, name: "Anita Devi", crop: "Paddy, Vegetables", district: "Bhagalpur", panchayat: "Shahkund", phone: "9801234567", lat: 25.219, lng: 87.205, badges:["Mentor"], online:true, likes:8 },
+      { id:7, name: "Vijay Yadav", crop: "Mustard, Lentils", district: "Bhagalpur", panchayat: "Sultanganj", phone: "9776543210", lat: 25.242, lng: 86.741, badges:["Tractor Owner"], online:false, likes:2 },
+      { id:8, name: "Kiran Kumari", crop: "Banana, Vegetables", district: "Bhagalpur", panchayat: "Kahalgaon", phone: "9123987654", lat: 25.260, lng: 87.239, badges:["Verified"], online:true, likes:14 }
+    ];
+
+    // store likes & created users
+    const likesKey = 'community_likes_v1';
+    const usersKey = 'community_users_v1';
+    const savedLikes = JSON.parse(localStorage.getItem(likesKey) || '{}');
+    const savedUsers = JSON.parse(localStorage.getItem(usersKey) || '[]');
+    // merge saved users (newly joined)
+    const allFarmers = farmers.concat(savedUsers);
+
+    // --- map setup ---
+    const map = L.map('map').setView([25.25, 87.0], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+    let markers = [];
+
+    function addMarker(f){
+      if(!f.lat || !f.lng) return null;
+      const m = L.marker([f.lat,f.lng]).addTo(map).bindPopup(`<b>${escapeHtml(f.name)}</b><br>${escapeHtml(f.crop)}<br>${escapeHtml(f.panchayat)}, ${escapeHtml(f.district)}<br><button onclick="openMessage(${f.id})">Message</button>`);
+      markers.push(m); return m;
+    }
+
+    function clearMarkers(){ markers.forEach(m=>map.removeLayer(m)); markers = []; }
+
+    // --- render community cards ---
+    const communityList = document.getElementById('communityList');
+    const districtFilter = document.getElementById('districtFilter');
+    const panchayatFilter = document.getElementById('panchayatFilter');
+    const searchBox = document.getElementById('searchBox');
+
+    function renderList(){
+      const d = districtFilter.value;
+      const p = panchayatFilter.value;
+      const q = (searchBox.value || '').toLowerCase();
+
+      communityList.innerHTML = '';
+      clearMarkers();
+
+      const combined = farmers.concat(JSON.parse(localStorage.getItem(usersKey)||'[]'));
+
+      combined.filter(f=> (d==='All' || d==='' || f.district===d))
+        .filter(f=> (p==='All' || p==='' || f.panchayat===p))
+        .filter(f=> (f.name.toLowerCase().includes(q) || f.crop.toLowerCase().includes(q) || (f.badges||[]).join(' ').toLowerCase().includes(q)))
+        .forEach(f=>{
+          const likeCount = savedLikes[f.id] ?? f.likes ?? 0;
+          const c = document.createElement('div'); c.className='card';
+          c.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center">
+              <div class="avatar">${initials(f.name)}</div>
+              <div style="flex:1">
+                <h3>${escapeHtml(f.name)} <span style="font-size:12px;color:var(--muted);font-weight:600"> · ${escapeHtml(f.village||'')}</span></h3>
+                <div class="muted">${escapeHtml(f.panchayat)}, ${escapeHtml(f.district)}</div>
+              </div>
+              <div style="text-align:right">
+                <div class="status">
+                  <div class="dot" style="background:${(f.online? 'linear-gradient(90deg,#27d36b,#0ea34b)':'#dcdcdc')};width:12px;height:12px;border-radius:50%"></div>
+                  <div style="font-size:12px;color:var(--muted)">${f.online? 'Online':'Offline'}</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px">${escapeHtml(f.crop)}</div>
+            <div class="badges">${(f.badges||[]).map(b=>`<span class="badge">${escapeHtml(b)}</span>`).join('')}</div>
+            <div class="actions">
+              <button class="small" onclick="callNumber('${f.phone}')">📞 Call</button>
+              <button class="small" onclick="openMessage(${f.id})">💬 Message</button>
+              <button class="small" onclick="openWhatsApp('${f.phone}')">💬 WhatsApp</button>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+                <button class="small" onclick="endorse(${f.id}, this)">👍</button>
+                <div class="like-count" id="likes-${f.id}">${likeCount}</div>
+              </div>
+            </div>
+          `;
+          communityList.appendChild(c);
+          addMarker(f);
+        });
+    }
+
+    // helpers
+    function initials(name){ return name.split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase(); }
+    function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function callNumber(n){ alert('Call: '+n); }
+    function openWhatsApp(n){ window.open('https://wa.me/91'+n, '_blank'); }
+
+    // endorse
+    function endorse(id, btn){
+      const likes = JSON.parse(localStorage.getItem(likesKey)||'{}');
+      likes[id] = (likes[id]||0) + 1;
+      localStorage.setItem(likesKey, JSON.stringify(likes));
+      document.getElementById('likes-'+id).textContent = likes[id];
+      showToast('Endorsed!');
+      btn.animate([{transform:'scale(1)'},{transform:'scale(1.15)'},{transform:'scale(1)'}],{duration:300});
+    }
+    window.endorse = endorse; // expose
+
+    // message popup
+    const msgPop = document.getElementById('messagePop');
+    const msgTo = document.getElementById('msgTo');
+    const msgText = document.getElementById('msgText');
+    function openMessage(id){
+      const u = findUser(id);
+      msgTo.textContent = 'Message to ' + (u?u.name:'Unknown');
+      msgPop.style.display = 'block';
+      msgPop.dataset.to = id;
+    }
+    document.getElementById('closeMsg').onclick = ()=> msgPop.style.display='none';
+    document.getElementById('sendMsg').onclick = ()=>{
+      const to = msgPop.dataset.to; const text = msgText.value.trim();
+      if(!text) return showToast('Write a message');
+      // In real app: send via server / push; here we mock
+      showToast('Message sent to ID '+to+' (demo)');
+      msgText.value=''; msgPop.style.display='none';
+    }
+    window.openMessage = openMessage;
+
+    function findUser(id){
+      return farmers.concat(JSON.parse(localStorage.getItem(usersKey)||'[]')).find(x=>x.id==id);
+    }
+
+    // join modal
+    const backdrop = document.getElementById('modalBackdrop');
+    document.getElementById('openJoin').onclick = ()=> backdrop.style.display='grid';
+    document.getElementById('closeJoin').onclick = ()=> backdrop.style.display='none';
+    document.getElementById('submitJoin').onclick = ()=>{
+      const name = document.getElementById('jname').value.trim();
+      const phone = document.getElementById('jphone').value.trim();
+      const district = document.getElementById('jdistrict').value.trim() || 'Bhagalpur';
+      const panchayat = document.getElementById('jpanchayat').value.trim() || 'Sabour';
+      const crop = document.getElementById('jcrop').value.trim() || 'Unknown';
+      let lat = parseFloat(document.getElementById('jlat').value) || null;
+      let lng = parseFloat(document.getElementById('jlng').value) || null;
+      if(!name || !phone){ showToast('Enter name and phone'); return; }
+      const newId = Date.now();
+      const newUser = { id:newId, name, phone, district, panchayat, crop, lat, lng, badges:[], online:true, likes:0 };
+      const saved = JSON.parse(localStorage.getItem(usersKey)||'[]'); saved.unshift(newUser); localStorage.setItem(usersKey, JSON.stringify(saved));
+      backdrop.style.display='none';
+      showToast('Welcome, '+name+'!');
+      renderList();
+    }
+
+    // weather (mocked) - replace with API if needed
+    function updateWeather(){
+      const temp = (22 + Math.floor(Math.random()*8));
+      document.getElementById('wtemp').textContent = temp + '°C';
+      document.getElementById('wdesc').textContent = ['Sunny','Partly Cloudy','Light Rain','Humid'][Math.floor(Math.random()*4)];
+      document.getElementById('wtime').textContent = new Date().toLocaleTimeString();
+    }
+
+    // toast
+    const toast = document.getElementById('toast');
+    let toastTimer = null;
+    function showToast(msg, t=1800){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toast.classList.remove('show'), t); }
+
+    // center on bhagalpur
+    document.getElementById('locMe').onclick = ()=> map.setView([25.25,87.02],11);
+
+    // filter button
+    document.getElementById('filterApply').onclick = renderList;
+    districtFilter.onchange = renderList; panchayatFilter.onchange = renderList; searchBox.oninput = renderList;
+
+    // initialize likes from storage
+    Object.assign(savedLikes, JSON.parse(localStorage.getItem(likesKey)||'{}'));
+
+    // initial load
+    updateWeather(); setInterval(updateWeather, 16000);
+    renderList();
+
+    // add markers for initial list
+    // (markers are added in renderList)
+
+    // small utility: expose some functions to markers popup
+    window.openMessage = openMessage;
+
+    // make map markers clickable to center
+    function recenterToFirst(){
+      const combined = farmers.concat(JSON.parse(localStorage.getItem(usersKey)||'[]'));
+      const first = combined[0]; if(first && first.lat && first.lng) map.setView([first.lat, first.lng], 12);
+    }
+
+    // add click-to-open-message handler from popup button (global handler already set)
+
+  </script>
 </body>
 </html>

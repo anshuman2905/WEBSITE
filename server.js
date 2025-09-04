@@ -230,9 +230,99 @@ app.post('/api/complete-task/Rice', auth, upload.single('photo'), async (req, re
 
 
 
+app.post('/api/user/pointsWheat', auth, async (req, res) => {
+  try {
+    const { points } = req.body;
+    const user = await User.findById(req.userId);
+    if(!user) return res.status(404).json({ message: 'User not found' });
+    user.pointsWheat = (user.pointsWheat || 0) + points;
+    await user.save();
+    res.json({ pointsWheat: user.pointsWheat });
+  } catch(err) {
+    res.status(500).json({ message: 'Failed to update points', error: err.message });
+  }
+});
+
+
 
 
 // Fallback: serve index.html for any unknown routes (so front-end routing works)
+
+
+// Admin: get all users
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const users = await User.find().select('-passwordHash -__v');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch users', error: err.message });
+  }
+});
+
+
+// Admin: update user
+app.put('/api/admin/users/:id', async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).select('-passwordHash -__v');
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update user', error: err.message });
+  }
+});
+
+// Admin: delete user
+app.delete('/api/admin/users/:id', async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete user', error: err.message });
+  }
+});
+
+
+
+app.post('/api/admin/users', async (req, res) => {
+  try {
+    const { name, phoneNo, password, farmSize, location, pointsWheat, pointsRice, pointsCorn, pointsBajra } = req.body;
+
+    if (!name || !phoneNo || !password) {
+      return res.status(400).json({ message: 'Name, phone number, and password are required' });
+    }
+
+    // hash the password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      phoneNo,
+      passwordHash,
+      farmSize,
+      location,
+      pointsWheat: pointsWheat || 0,
+      pointsRice: pointsRice || 0,
+      pointsCorn: pointsCorn || 0,
+      pointsBajra: pointsBajra || 0,
+      tasksCompletedWheat: [],
+      tasksCompletedRice: [],
+      tasksCompletedCorn: [],
+      tasksCompletedBajra: []
+    });
+
+    const result = await User.findById(user._id).select('-passwordHash -__v');
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to add user', error: err.message });
+  }
+});
+
+
+
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

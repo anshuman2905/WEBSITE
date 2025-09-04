@@ -23,7 +23,7 @@
     <h1 class="text-2xl font-bold">Wheat Crop — Mini‑Game Dashboard</h1>
   </div>
   <div class="flex items-center gap-3 text-sm">
-    <span id="badge" class="hidden md:inline-block bg-white/15 px-3 py-1 rounded-full">Farm Rank: <strong id="rank">Novice</strong></span>
+    <span id="badge" class="hidden md:inline-block bg-white/15 px-3 py-1 rounded-full">Farm Rank: <strong id="rank">Beginner</strong></span>
     <button id="resetBtn" class="bg-white text-green-700 font-semibold px-3 py-1 rounded hover:bg-green-100">Reset</button>
   </div>
 </header>
@@ -113,7 +113,7 @@ const state = {
   completed: [],
   xp: 0,
   growthStage: 0,
-  rank: 'Novice',
+  rank: 'Beginner',
   badges: [],
   restore() { const raw = localStorage.getItem('wheatGameState'); if(!raw) return; try{Object.assign(this, JSON.parse(raw));}catch{}},
   persist() { localStorage.setItem('wheatGameState', JSON.stringify(this)); }
@@ -139,7 +139,7 @@ document.getElementById('closeHow').onclick = () => how.close();
 
 resetBtn.addEventListener('click', () => {
   localStorage.removeItem('wheatGameState');
-  state.completed=[]; state.xp=0; state.growthStage=0; state.rank='Novice'; state.badges=[];
+  state.completed=[]; state.xp=0; state.growthStage=0; state.rank='Beginner'; state.badges=[];
   renderTasks(); updateHUD(); game.reset();
 });
 
@@ -194,11 +194,10 @@ function grantXP(x,cx,cy){
   setTimeout(()=>chip.remove(),900);
   const old=state.rank;
   if(state.xp>=300 && state.rank!=='Master Farmer') state.rank='Master Farmer';
-  else if(state.xp>=150 && state.rank==='Novice') state.rank='Skilled';
+  else if(state.xp>=150 && state.rank==='Beginner') state.rank='Skilled';
   if(state.rank!==old){ state.persist(); updateHUD(); document.getElementById('badge').classList.add('pop'); setTimeout(()=>document.getElementById('badge').classList.remove('pop'),600);}
 }
 
-// ===== Modified completeQuest with Photo Modal =====
 let pendingQuestIndex = null;
 function completeQuest(i){
   pendingQuestIndex = i;
@@ -206,22 +205,41 @@ function completeQuest(i){
   photoModal.showModal();
 }
 
-submitPhoto.addEventListener('click',()=>{
+submitPhoto.addEventListener('click', async () => {
   if(!photoInput.files.length) return alert("Please select a photo!");
   const i = pendingQuestIndex;
   pendingQuestIndex = null;
   photoModal.close();
+  
+  let xpGained;
   if(!state.completed.includes(i)){
     state.completed.push(i);
     state.growthStage=Math.min(5,state.growthStage+1);
-    grantXP(tasks[i].xp, game.lastPointer.x, game.lastPointer.y);
+    xpGained = tasks[i].xp;
+    grantXP(xpGained, game.lastPointer.x, game.lastPointer.y);
     maybeBadge(i);
     state.persist();
     renderTasks(); updateHUD();
   }else{
-    grantXP(Math.floor(tasks[i].xp/5), game.lastPointer.x, game.lastPointer.y);
+    xpGained = Math.floor(tasks[i].xp/5);
+    grantXP(xpGained, game.lastPointer.x, game.lastPointer.y);
+  }
+
+  
+  try {
+    const res = await fetch('/api/user/pointsWheat', { // make sure your backend has this POST route
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ points: xpGained })
+    });
+    if(!res.ok) throw new Error('Failed to update backend points');
+  } catch(err) {
+    console.error('Error updating backend:', err);
   }
 });
+
 
 function maybeBadge(i){
   const map={0:'Soil Tamer',1:'Seed Slinger',2:'Rain Whisperer',3:'Growth Guru',4:'Golden Reaper'};

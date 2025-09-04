@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sustainable Farming Awareness</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Quicksand', sans-serif; background: linear-gradient(135deg, #a8e6cf, #dcedc1); color: #333; overflow-x: hidden; }
+
+  header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #43cea2, #185a9d);
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header h1 { font-size: 3rem; margin-bottom: 20px; animation: slideInDown 1s ease-out forwards; }
+  header p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; animation: fadeIn 2s ease-out forwards; }
+  header button { background-color: #ffd166; color: #333; border: none; padding: 15px 30px; font-size: 1rem; cursor: pointer; border-radius: 50px; transition: transform 0.3s, background 0.3s; animation: fadeIn 2.5s ease-out forwards; }
+  header button:hover { transform: scale(1.1); background: #f4a261; }
+
+  @keyframes slideInDown { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+  @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+  section { padding: 80px 20px; text-align: center; }
+  section h2 { font-size: 2.2rem; margin-bottom: 40px; position: relative; }
+  section h2::after { content: ''; width: 80px; height: 4px; background: #43cea2; display: block; margin: 20px auto 0; border-radius: 2px; }
+
+  .cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+  .card {
+    background: white; border-radius: 20px; padding: 30px; width: 300px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s, opacity 1s;
+    opacity: 0; transform: translateY(50px); cursor: pointer;
+  }
+  .card.visible { opacity: 1; transform: translateY(0); }
+  .card:hover { transform: translateY(-10px); box-shadow: 0 15px 25px rgba(0,0,0,0.2); }
+
+  .card h3 { margin-bottom: 15px; color: #185a9d; }
+  .card p { font-size: 0.95rem; line-height: 1.5; color: #555; }
+  .icon { font-size: 3rem; margin-bottom: 15px; color: #43cea2; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+  /* Tips Carousel */
+  .carousel-container {
+    max-width: 800px;
+    margin: 60px auto;
+    overflow: hidden;
+    border-radius: 20px;
+    background: linear-gradient(135deg,#ffd166,#f4a261);
+    padding: 20px;
+    position: relative;
+  }
+  .carousel-track { display: flex; transition: transform 0.5s ease-in-out; }
+  .carousel-item {
+    min-width: 100%;
+    padding: 20px;
+    text-align: center;
+    color: #185a9d;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  footer { background: #185a9d; color: white; padding: 50px 20px; text-align: center; }
+  footer h3 { margin-bottom: 20px; font-size: 1.5rem; }
+  footer p { font-size: 1rem; max-width: 600px; margin: 0 auto 20px; }
+  footer a { background-color: #ffd166; color: #333; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 50px; cursor: pointer; transition: transform 0.3s, background 0.3s; text-decoration: none;}
+  footer a:hover { transform: scale(1.1); background: #f4a261; }
+
+  #particles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <canvas id="particles"></canvas>
+  <h1>Transform Farming, Transform Lives</h1>
+  <p>Despite numerous awareness campaigns, many farmers still rely on unsustainable practices. Let's inspire change with knowledge and engagement.</p>
+  <button onclick="document.getElementById('solutions').scrollIntoView({behavior:'smooth'})">Explore Solutions</button>
+</header>
+
+<section id="problems">
+  <h2>Challenges in Farming</h2>
+  <div class="cards">
+    <div class="card" data-text="Overuse of pesticides and fertilizers harms soil health, pollutes water, and reduces biodiversity.">
+      <div class="icon">💊</div>
+      <h3>Excessive Chemicals</h3>
+      <p>Overuse of pesticides and fertilizers harms soil health, pollutes water, and reduces biodiversity.</p>
+    </div>
+    <div class="card" data-text="Excessive water usage wastes resources and can lead to soil salinization and reduced crop yields.">
+      <div class="icon">💧</div>
+      <h3>Over-Irrigation</h3>
+      <p>Excessive water usage wastes resources and can lead to soil salinization and reduced crop yields.</p>
+    </div>
+    <div class="card" data-text="Growing a single crop repeatedly depletes soil nutrients and increases pest vulnerability.">
+      <div class="icon">🌾</div>
+      <h3>Mono-Cropping</h3>
+      <p>Growing a single crop repeatedly depletes soil nutrients and increases pest vulnerability.</p>
+    </div>
+    <div class="card" data-text="Lack of awareness about sustainable farming techniques limits adoption of eco-friendly practices.">
+      <div class="icon">📚</div>
+      <h3>Low Awareness</h3>
+      <p>Lack of awareness about sustainable farming techniques limits adoption of eco-friendly practices.</p>
+    </div>
+    <div class="card" data-text="Soil degradation and nutrient depletion reduce long-term farm productivity.">
+      <div class="icon">🪨</div>
+      <h3>Soil Degradation</h3>
+      <p>Soil degradation and nutrient depletion reduce long-term farm productivity.</p>
+    </div>
+    <div class="card" data-text="Climate change and unpredictable weather patterns increase crop failure risk.">
+      <div class="icon">🌪️</div>
+      <h3>Climate Risks</h3>
+      <p>Climate change and unpredictable weather patterns increase crop failure risk.</p>
+    </div>
+    <div class="card" data-text="Frequent pest and disease outbreaks destroy crops and reduce yield.">
+      <div class="icon">🐛</div>
+      <h3>Pest & Disease Outbreaks</h3>
+      <p>Frequent pest and disease outbreaks destroy crops and reduce yield.</p>
+    </div>
+  </div>
+</section>
+
+<section id="solutions">
+  <h2>Sustainable Solutions</h2>
+  <div class="cards">
+    <div class="card" data-text="Use compost, manure, and bio-fertilizers to maintain healthy soil and eco-friendly crops.">
+      <div class="icon">🌱</div>
+      <h3>Organic Fertilizers</h3>
+      <p>Use compost, manure, and bio-fertilizers to maintain healthy soil and eco-friendly crops.</p>
+    </div>
+    <div class="card" data-text="Adopt drip irrigation and rainwater harvesting to conserve water and improve yields.">
+      <div class="icon">💦</div>
+      <h3>Efficient Irrigation</h3>
+      <p>Adopt drip irrigation and rainwater harvesting to conserve water and improve yields.</p>
+    </div>
+    <div class="card" data-text="Rotate crops and grow diverse varieties to enhance soil fertility and reduce pest risk.">
+      <div class="icon">🌿</div>
+      <h3>Crop Rotation</h3>
+      <p>Rotate crops and grow diverse varieties to enhance soil fertility and reduce pest risk.</p>
+    </div>
+    <div class="card" data-text="Conduct workshops and training programs to raise awareness about sustainable farming.">
+      <div class="icon">🧑‍🌾</div>
+      <h3>Farmer Education</h3>
+      <p>Conduct workshops and training programs to raise awareness about sustainable farming.</p>
+    </div>
+    <div class="card" data-text="Implement soil testing and nutrient management to prevent degradation.">
+      <div class="icon">🧪</div>
+      <h3>Soil Management</h3>
+      <p>Implement soil testing and nutrient management to prevent degradation.</p>
+    </div>
+    <div class="card" data-text="Adopt climate-resilient crops and predictive farming methods to mitigate risks.">
+      <div class="icon">🌾🌞</div>
+      <h3>Climate Resilience</h3>
+      <p>Adopt climate-resilient crops and predictive farming methods to mitigate risks.</p>
+    </div>
+    <div class="card" data-text="Use integrated pest management techniques including natural predators, traps, and minimal chemical usage.">
+      <div class="icon">🛡️</div>
+      <h3>Integrated Pest Management</h3>
+      <p>Use integrated pest management techniques including natural predators, traps, and minimal chemical usage.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tips Carousel -->
+<div class="carousel-container">
+  <div class="carousel-track">
+    <div class="carousel-item">Tip 1: Use natural compost to enrich soil.</div>
+    <div class="carousel-item">Tip 2: Install drip irrigation for water efficiency.</div>
+    <div class="carousel-item">Tip 3: Rotate crops to maintain soil health.</div>
+    <div class="carousel-item">Tip 4: Reduce chemical usage gradually.</div>
+    <div class="carousel-item">Tip 5: Share knowledge with neighboring farmers.</div>
+  </div>
+</div>
+
+<footer>
+  <h3>Time to learn and make your fields blowing</h3>
+  
+  <a href="home.html" class="button-link">
+  Start Learning
+</a>
+
+</footer>
+
+<script>
+  // Particle animation
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  let particlesArray = [];
+  function resizeCanvas() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  class Particle { constructor() { this.x=Math.random()*w; this.y=Math.random()*h; this.size=Math.random()*3+1; this.speedX=Math.random()*1-0.5; this.speedY=Math.random()*1-0.5; } update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>w)this.speedX=-this.speedX; if(this.y<0||this.y>h)this.speedY=-this.speedY; } draw() { ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); } }
+  function initParticles(){ particlesArray=[]; for(let i=0;i<100;i++){particlesArray.push(new Particle()); } }
+  function animate(){ ctx.clearRect(0,0,w,h); particlesArray.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
+  initParticles(); animate();
+
+  // Scroll fade-in
+  const cards = document.querySelectorAll('.card');
+  const observer = new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ entry.target.classList.add('visible'); } }); }, { threshold:0.2 });
+  cards.forEach(card=>observer.observe(card));
+
+  // Voice narration
+  cards.forEach(card=>{ card.addEventListener('mouseenter',()=>{ const msg=new SpeechSynthesisUtterance(card.getAttribute('data-text')); msg.lang='en-US'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(msg); }); });
+
+  // Carousel
+  const track = document.querySelector('.carousel-track');
+  let index = 0;
+  function nextSlide(){
+    index++;
+    if(index >= track.children.length) index = 0;
+    track.style.transform = `translateX(-${index*100}%)`;
+  }
+  setInterval(nextSlide, 4000);
+</script>
+
+</body>
+</html>

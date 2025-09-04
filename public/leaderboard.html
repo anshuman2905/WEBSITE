@@ -152,6 +152,8 @@
   .right{ text-align:right }
   a.link{ color:var(--brand-2); text-decoration:none }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <header class="header">
@@ -429,13 +431,60 @@ function shareFarmer(f){
     toast("Share link copied 🔗");
   }
 }
-$("#shareBtn").onclick = ()=>{
-  const p = activePanchayat==="All" ? "All Panchayats" : activePanchayat;
-  const text = `🌾 Leaderboard – ${p}. Join the challenge with us!`;
-  const url = location.href.split("#")[0]+"#panchayat="+encodeURIComponent(p);
-  if(navigator.share){ navigator.share({title:"Peer Leaderboard", text, url}).catch(()=>{}); }
-  else{ copyToClipboard(`${text}\n${url}`); toast("Leaderboard link copied 🔗"); }
+// PDF Generation for Leaderboard
+$("#shareBtn").onclick = async () => {
+  const activeUser = FARMERS[0]; // assume first farmer is "You"
+  const leaderboardEl = $("#leaderboard");
+
+  // Add your rank info at the top
+  const rank = FARMERS
+    .filter(f => activePanchayat==="All" || f.panchayat===activePanchayat)
+    .sort((a,b)=> b.points - a.points)
+    .findIndex(f=> f.name === activeUser.name) + 1;
+
+  // Create a temporary container for PDF content
+  const pdfContainer = el("div", null);
+  pdfContainer.style.padding = "20px";
+  pdfContainer.style.background = "#f9f9f9";
+  pdfContainer.style.color = "#000";
+  pdfContainer.style.width = "600px";
+
+  pdfContainer.innerHTML = `
+    <h2 style="text-align:center;">🌱 NAVDHARA LEADERBOARD</h2>
+    <p style="text-align:center; font-size:14px;">Panchayat: ${activePanchayat}</p>
+    <p style="font-weight:700;">Your Rank: ${rank} / ${FARMERS.length}</p>
+    <p style="font-weight:700;">Points: ${formatPoints(activeUser.points)}</p>
+    <p style="font-weight:700;">Streak: ${activeUser.streak} days</p>
+    <p style="font-weight:700;">Badges: ${activeUser.badges.join(", ")}</p>
+    <h3>Top Performers</h3>
+    <ul style="padding-left:20px;">
+      ${Array.from(leaderboardEl.children).map(row=>{
+        const name = row.querySelector(".name > div > div").textContent;
+        const pts = row.querySelector(".pill").textContent;
+        return `<li>${name} – ${pts}</li>`;
+      }).join("")}
+    </ul>
+  `;
+
+  document.body.appendChild(pdfContainer);
+
+  // Render container to canvas
+  const canvas = await html2canvas(pdfContainer, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: [canvas.width, canvas.height]
+  });
+  pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+  pdf.save(`Leaderboard_${activePanchayat}.pdf`);
+
+  pdfContainer.remove();
+  toast("PDF generated! 📄");
 };
+
 $("#postUpdate").onclick = ()=>{
   const msg = prompt("Share your update with the community:", "Added compost to half acre today.");
   if(!msg) return;
