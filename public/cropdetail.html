@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #065f46;
+    margin-bottom: 20px;
+    font-size: 36px; /* bigger heading */
+  }
+
+  input, select {
+    width: 100%;
+    padding: 15px 20px; /* bigger input fields */
+    margin-bottom: 20px;
+    border-radius: 30px;
+    border: none;
+    font-size: 18px; /* larger text */
+    box-sizing: border-box;
+  }
+
+  input {
+    background-color: #d1fae5;
+  }
+
+  select {
+    background-color: #d1fae5;
+  }
+
+  .card {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-radius: 25px; /* slightly bigger rounded corners */
+    box-shadow: 0 5px 10px rgba(0,128,0,0.3); /* stronger shadow */
+    margin-bottom: 25px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    font-size: 18px; /* overall card text bigger */
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px 20px; /* bigger padding */
+  }
+
+  .card-header img {
+    width: 80px; /* bigger image */
+    height: 80px;
+    border-radius: 15px;
+    object-fit: cover;
+    margin-right: 20px;
+  }
+
+  .card-header h2 {
+    margin: 0;
+    font-size: 28px; /* bigger card title */
+    color: #065f46;
+  }
+
+  .card-body {
+    display: none;
+    padding: 20px; /* more padding inside details */
+    background: #ffffff;
+  }
+
+  .detail {
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,128,0,0.15);
+    display: flex;
+    font-size: 16px; /* bigger detail text */
+  }
+
+  .detail strong {
+    width: 150px; /* wider label column */
+    color: #065f46;
+    font-size: 16px;
+  }
+
+  .detail span {
+    flex: 1;
+    font-size: 16px;
+  }
+
+  .card.active .card-body {
+    display: block;
+  }
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <h1>🌾 Explore Crops</h1>
+
+    <input type="text" id="search" placeholder="Search crops...">
+    <select id="season">
+      <option value="All">All Seasons</option>
+      <option value="Kharif">Kharif</option>
+      <option value="Rabi">Rabi</option>
+    </select>
+
+    <div id="crop-list"></div>
+  </div>
+
+  <script>
+    const crops = [
+      {
+        name: "Wheat",
+        image: "assets/images/wheat.jpg",
+        season: "Rabi",
+        climate: "Cool, dry climate; 10–25°C",
+        soil: "Well-drained loamy or clay soil",
+        uses: "Bread, chapati, pasta, cereals, fodder",
+        marketValue: "₹2,200 – ₹2,600/quintal",
+        fertilizer: "Nitrogen, Phosphorus, Potassium",
+        water: "Irrigate every 20–25 days",
+        regions: "Punjab, Haryana, UP, MP, Rajasthan",
+        yield: "30–35 quintals/acre",
+        tips: "Use certified seeds, avoid waterlogging."
+      },
+      {
+        name: "Rice",
+        image: "assets/images/rice.jpg",
+        season: "Kharif",
+        climate: "Hot & humid; 20–35°C, high rainfall",
+        soil: "Clayey soil with good water retention",
+        uses: "Staple food, rice bran oil, livestock feed",
+        marketValue: "₹1,800 – ₹2,200/quintal",
+        fertilizer: "Urea, DAP in split doses",
+        water: "Continuous flooding 5cm depth",
+        regions: "West Bengal, Bihar, Punjab, Andhra, TN",
+        yield: "25–30 quintals/acre",
+        tips: "Maintain standing water, timely transplanting."
+      },
+      {
+        name: "Maize",
+        image: "assets/images/maize.jpg",
+        season: "Kharif & Rabi",
+        climate: "Warm climate; 18–27°C",
+        soil: "Fertile, well-drained alluvial soil",
+        uses: "Food, fodder, starch, ethanol, oil",
+        marketValue: "₹1,500 – ₹1,700/quintal",
+        fertilizer: "NPK fertilizers with zinc",
+        water: "Irrigate every 10–12 days",
+        regions: "Karnataka, Bihar, UP, MP, Andhra",
+        yield: "20–25 quintals/acre",
+        tips: "Avoid water stagnation, timely weeding."
+      },
+      {
+        name: "Sugarcane",
+        image: "assets/images/sugarcane.webp",
+        season: "Annual (12–18 months)",
+        climate: "Tropical; 20–35°C",
+        soil: "Deep, rich loamy soil with good drainage",
+        uses: "Sugar, jaggery, ethanol, fodder",
+        marketValue: "₹280 – ₹310/quintal (state-wise)",
+        fertilizer: "High nitrogen + organic manure",
+        water: "Frequent irrigation (8–10 days)",
+        regions: "UP, Maharashtra, Karnataka, Bihar",
+        yield: "40–50 tons/acre",
+        tips: "Apply trash mulching, proper ratooning."
+      },
+      {
+        name: "Cotton",
+        image: "assets/images/cotton.webp",
+        season: "Kharif",
+        climate: "Hot & dry; 20–35°C",
+        soil: "Black cotton soil (regur)",
+        uses: "Textiles, oil, seed cake for fodder",
+        marketValue: "₹6,000 – ₹7,000/quintal",
+        fertilizer: "NPK with micronutrients",
+        water: "Irrigate every 15–20 days",
+        regions: "Maharashtra, Gujarat, Telangana, Punjab",
+        yield: "8–10 quintals/acre",
+        tips: "Use Bt cotton seeds, manage bollworms."
+      }
+    ];
+
+    const cropList = document.getElementById('crop-list');
+    const searchInput = document.getElementById('search');
+    const seasonSelect = document.getElementById('season');
+
+    function renderCrops() {
+      const searchQuery = searchInput.value.toLowerCase();
+      const selectedSeason = seasonSelect.value;
+      cropList.innerHTML = '';
+
+      const filteredCrops = crops.filter(crop => {
+        const matchesSearch = crop.name.toLowerCase().includes(searchQuery);
+        const matchesSeason = selectedSeason === 'All' || crop.season.includes(selectedSeason);
+        return matchesSearch && matchesSeason;
+      });
+
+      filteredCrops.forEach(crop => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        card.innerHTML = `
+          <div class="card-header">
+            <img src="${crop.image}" alt="${crop.name}">
+            <h2>${crop.name}</h2>
+          </div>
+          <div class="card-body">
+            <div class="detail"><strong>Season:</strong> <span>${crop.season}</span></div>
+            <div class="detail"><strong>Climate:</strong> <span>${crop.climate}</span></div>
+            <div class="detail"><strong>Soil:</strong> <span>${crop.soil}</span></div>
+            <div class="detail"><strong>Fertilizer:</strong> <span>${crop.fertilizer}</span></div>
+            <div class="detail"><strong>Water Needs:</strong> <span>${crop.water}</span></div>
+            <div class="detail"><strong>Regions:</strong> <span>${crop.regions}</span></div>
+            <div class="detail"><strong>Yield:</strong> <span>${crop.yield}</span></div>
+            <div class="detail"><strong>Uses:</strong> <span>${crop.uses}</span></div>
+            <div class="detail"><strong>Market Value:</strong> <span>${crop.marketValue}</span></div>
+            <div class="detail"><strong>Tips:</strong> <span>${crop.tips}</span></div>
+          </div>
+        `;
+
+        card.querySelector('.card-header').addEventListener('click', () => {
+          card.classList.toggle('active');
+        });
+
+        cropList.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', renderCrops);
+    seasonSelect.addEventListener('change', renderCrops);
+
+    renderCrops();
+  </script>
+</body>
+</html>

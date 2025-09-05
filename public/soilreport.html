@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farm Soil Report Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+    position: relative;
+  }
+
+  h1 {
+    margin-top: 20px;
+    text-align: center;
+    color: #2c5f2d;
+    font-size: 3.5em;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+  }
+
+  /* Farm background trees and grass */
+  .farm-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .tree {
+    position: absolute;
+    bottom: 0;
+    width: 80px;
+    height: 150px;
+    background: #4b3f2f;
+    border-radius: 10px;
+  }
+
+  .tree::before {
+    content: '';
+    position: absolute;
+    bottom: 80px;
+    left: -40px;
+    width: 160px;
+    height: 80px;
+    background: #2c5f2d;
+    border-radius: 80px 80px 0 0;
+  }
+
+  .grass {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    background: repeating-linear-gradient(
+      to right,
+      #2c5f2d,
+      #2c5f2d 10px,
+      #4da2ca 10px,
+      #4da2ca 20px
+    );
+    animation: sway 2s infinite alternate ease-in-out;
+  }
+
+  @keyframes sway {
+    0% { transform: translateX(0);}
+    100% { transform: translateX(10px);}
+  }
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    padding: 40px;
+    max-width: 1400px;
+    margin: auto;
+  }
+
+  .card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+  }
+
+  .card:hover {
+    /* transform: rotateY(15deg) rotateX(10deg) scale(1.05); */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+
+  canvas {
+    max-width: 100%;
+    height: 250px;
+  }
+
+  .value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2c5f2d;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .bar {
+  width: 50px;
+  height: 100px;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #4da2ca, #2b6c8f);
+  border-radius: 10px;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  writing-mode: vertical-rl;       /* Makes text vertical */
+  text-orientation: upright;       /* Keeps letters upright */
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+
+  .bar:hover {
+    transform: translateZ(20px) scaleY(1.2);
+  }
+
+  .legend {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    font-weight: 600;
+    color: #2c5f2d;
+  }
+</style>
+</head>
+<body>
+
+<!-- <div class="farm-bg">
+  <div class="tree" style="left: 10%;"></div>
+  <div class="tree" style="left: 30%; height: 180px;"></div>
+  <div class="tree" style="left: 60%;"></div>
+  <div class="tree" style="left: 80%; height: 160px;"></div>
+  <div class="grass"></div>
+</div> -->
+
+<h1>Farm Soil Report Dashboard</h1>
+
+<div class="dashboard">
+  <!-- Existing Cards -->
+  <div class="card">
+    <div class="value">pH Value</div>
+    <canvas id="phChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Moisture Level (%)</div>
+    <canvas id="moistureChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Soil Nutrients</div>
+    <canvas id="nutrientsChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Soil Composition</div>
+    <div style="display:flex; justify-content:center;">
+      <div class="bar" style="height:120px;"></div>
+      <div class="bar" style="height:80px;"></div>
+      <div class="bar" style="height:150px;"></div>
+      <div class="bar" style="height:60px;"></div>
+    </div>
+    <div class="legend">
+      <span>Nitrogen</span>
+      <span>Phosphorus</span>
+      <span>Potassium</span>
+      <span>Organic Matter</span>
+    </div>
+  </div>
+
+  <!-- New Feature Cards -->
+  <div class="card">
+    <div class="value">Soil Temperature (°C)</div>
+    <canvas id="temperatureChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Electrical Conductivity (EC)</div>
+    <canvas id="ecChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Salinity Level</div>
+    <canvas id="salinityChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Soil Texture</div>
+    <canvas id="textureChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="value">Microbial Activity</div>
+    <canvas id="microbialChart"></canvas>
+  </div>
+</div>
+
+<script>
+  function getRandomValue(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Existing Charts
+  const phCtx = document.getElementById('phChart').getContext('2d');
+  new Chart(phCtx, {
+    type: 'line',
+    data: {
+      labels: ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7'],
+      datasets: [{
+        label: 'pH',
+        data: Array.from({length: 7}, () => (Math.random() * 2 + 5).toFixed(1)),
+        backgroundColor: 'rgba(77, 162, 202,0.3)',
+        borderColor: '#4da2ca',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 14 } } }
+  });
+
+  const moistureCtx = document.getElementById('moistureChart').getContext('2d');
+  new Chart(moistureCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Topsoil','Midsoil','Deepsoil'],
+      datasets: [{
+        label: 'Moisture (%)',
+        data: [getRandomValue(20, 60), getRandomValue(15, 50), getRandomValue(10, 40)],
+        backgroundColor: ['#a5d956','#f9d56e','#f28c28'],
+        borderRadius: 10
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
+  });
+
+  const nutrientsCtx = document.getElementById('nutrientsChart').getContext('2d');
+  new Chart(nutrientsCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Nitrogen','Phosphorus','Potassium','Organic Matter'],
+      datasets: [{
+        label: 'Nutrients',
+        data: [getRandomValue(10, 40), getRandomValue(5, 25), getRandomValue(5, 30), getRandomValue(5, 20)],
+        backgroundColor: ['#4da2ca','#a5d956','#f28c28','#f9d56e'],
+        hoverOffset: 10
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // New Feature Charts
+  const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+  new Chart(temperatureCtx, {
+    type: 'line',
+    data: {
+      labels: ['6AM','9AM','12PM','3PM','6PM','9PM'],
+      datasets: [{
+        label: 'Temperature °C',
+        data: Array.from({length: 6}, () => getRandomValue(18, 35)),
+        borderColor: '#f28c28',
+        backgroundColor: 'rgba(242,140,40,0.3)',
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  const ecCtx = document.getElementById('ecChart').getContext('2d');
+  new Chart(ecCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Topsoil','Midsoil','Deepsoil'],
+      datasets: [{
+        label: 'EC',
+        data: [getRandomValue(0.2, 1.5), getRandomValue(0.1, 1.0), getRandomValue(0.05, 0.8)],
+        backgroundColor: ['#4da2ca','#2b6c8f','#1f3f5a'],
+        borderRadius: 8
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 2 } } }
+  });
+
+  const salinityCtx = document.getElementById('salinityChart').getContext('2d');
+  new Chart(salinityCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low','Medium','High'],
+      datasets: [{
+        label: 'Salinity',
+        data: [getRandomValue(20,50), getRandomValue(30,60), getRandomValue(10,30)],
+        backgroundColor: ['#a5d956','#f9d56e','#f28c28'],
+        hoverOffset: 10
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  const textureCtx = document.getElementById('textureChart').getContext('2d');
+  new Chart(textureCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Sand','Silt','Clay'],
+      datasets: [{
+        label: 'Soil Texture',
+        data: [getRandomValue(30,60), getRandomValue(20,40), getRandomValue(10,30)],
+        backgroundColor: ['#f28c28','#4da2ca','#a5d956'],
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  const microbialCtx = document.getElementById('microbialChart').getContext('2d');
+  new Chart(microbialCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Bacteria','Fungi','Actinomycetes','Protozoa'],
+      datasets: [{
+        label: 'Microbial Activity',
+        data: [getRandomValue(50,200), getRandomValue(30,150), getRandomValue(20,100), getRandomValue(10,80)],
+        backgroundColor: ['#4da2ca','#a5d956','#f28c28','#f9d56e'],
+        borderRadius: 5
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+
+</script>
+</body>
+</html>

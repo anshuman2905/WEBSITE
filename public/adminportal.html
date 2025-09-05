@@ -6,39 +6,101 @@
   <title>Admin Portal – Farmer Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: linear-gradient(to bottom right, #a5d956, #4da2ca);
-      font-family: 'Poppins', sans-serif;
-    }
-    .card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      padding: 2rem;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      border: 1px solid #e5e7eb;
-      padding: 8px 10px;
-      text-align: left;
-    }
-    th {
-      background: #f3f4f6;
-    }
-    .modal {
-      position: fixed; inset: 0;
-      display: none; 
-      justify-content: center; align-items: center;
-      background: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-      background: white; padding: 2rem; border-radius: 1rem;
-      width: 400px; max-width: 95%;
-    }
-  </style>
+  /* Body styling */
+  body {
+    background: linear-gradient(to bottom right, #a5d956, #4da2ca);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 2rem;
+    animation: bgShift 20s infinite alternate;
+  }
+
+  /* Gradient animation for body */
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Card styling with hover effect */
+  .card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+
+  /* Table styling with hover effect */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    animation: fadeIn 1s ease;
+  }
+  th, td {
+    border: 1px solid #e5e7eb;
+    padding: 12px 15px;
+    text-align: left;
+    transition: background 0.3s ease;
+  }
+  th {
+    background: #f3f4f6;
+  }
+  tr:hover td {
+    background: #f9fafb;
+  }
+
+  /* Modal styling with smooth fade in */
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none; 
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease forwards;
+  }
+  .modal-content {
+    background: white; 
+    padding: 2rem; 
+    border-radius: 1rem;
+    width: 400px; 
+    max-width: 95%;
+    transform: translateY(-30px);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+  .modal.show .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Fade-in animation for tables, modals */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Button animation (if you add buttons) */
+  button {
+    background: #4da2ca;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  button:hover {
+    background: #3a8bbf;
+    transform: scale(1.05);
+  }
+</style>
+
 </head>
 <body class="min-h-screen p-6">
 
