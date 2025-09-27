@@ -77,7 +77,7 @@ signinForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     if (!res.ok) return alert(data.message || 'Signin failed');
     localStorage.setItem('token', data.token);
-    window.location.href = '/intro.html';
+    window.location.href = '/home.html';
   } catch (err) {
     console.error(err);
     alert('Signin error');

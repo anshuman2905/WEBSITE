@@ -309,6 +309,35 @@
         container.appendChild(p);
       }
     })();
+  let userData;
+  let score;
+  async function loadAll() {
+  const token = localStorage.getItem('token'); // example
+  if (!token) return window.location.href = '/';
+
+  try {
+    const userRes = await fetch('/api/user', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!userRes.ok) {
+      console.error('API Error:', userRes.status, await userRes.text());
+      return window.location.href = '/';
+    }
+
+    userData = await userRes.json();
+    console.log('User loaded:', userData);
+    score=userData.pointsBajra;
+    
+    // ... continue with your dashboard logic
+    
+  } catch (err) {
+    console.error('Fetch failed:', err);
+    alert('Failed to load dashboard.');
+  }
+}
+
+loadAll();
 
     // Fake initial data (replace with real API later)
     let data = {

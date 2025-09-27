@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Let's Know About Your Soil — Photo Analyzer</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#0b1220;
+      --accent:#7dd3fc;
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.65);
+      --success:#10b981;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background-image: radial-gradient(1200px 800px at 10% 10%, rgba(125,211,252,0.06), transparent 10%),
+                        radial-gradient(1000px 700px at 90% 90%, rgba(16,185,129,0.03), transparent 10%),
+                        linear-gradient(180deg,var(--bg) 0%, #071029 100%);
+      color: #e6eef8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px;
+    }
+    .wrap{
+      width:100%;
+      max-width:1000px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:24px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.04);
+      padding:22px;
+      border-radius:14px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    }
+    h1{font-size:20px;margin:0;color:#dff6ff}
+    p.lead{color:var(--muted);margin-top:10px;line-height:1.45}
+
+    .uploader{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+    .drop{background:var(--glass);border:1px dashed rgba(255,255,255,0.04);padding:12px;border-radius:10px;display:flex;gap:12px;align-items:center}
+    .drop input{display:none}
+    .btn{
+      background:linear-gradient(90deg,var(--accent), #34d399);
+      border:none;padding:10px 14px;border-radius:10px;color:#022039;font-weight:600;cursor:pointer;
+      box-shadow: 0 6px 18px rgba(7,29,44,0.45);
+    }
+    .secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+    .preview{
+      width:100%;height:300px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#081423,#06111d);display:flex;align-items:center;justify-content:center;position:relative;border:1px solid rgba(255,255,255,0.03);
+    }
+    .preview img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+    .info{font-size:13px;color:var(--muted)}
+
+    .right{display:flex;flex-direction:column;gap:14px}
+    .analysis{padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border:1px solid rgba(255,255,255,0.03)}
+    .stat{display:flex;gap:10px;align-items:center}
+    .swatch{width:36px;height:36px;border-radius:8px;border:1px solid rgba(0,0,0,0.25)}
+    .suggest{margin-top:10px;padding:12px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+    .tag{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);color:var(--muted);font-size:12px;margin-right:8px}
+    .footer-note{font-size:12px;color:rgba(255,255,255,0.55)}
+
+    .result-title{font-weight:700;color:#e6fff7}
+    .copybtn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:8px;color:var(--muted);cursor:pointer}
+
+    footer{grid-column:span 2;text-align:center;color:rgba(255,255,255,0.35);font-size:13px;margin-top:12px}
+
+    @media(max-width:880px){
+      .wrap{grid-template-columns:1fr;}
+      .preview{height:220px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Let's Know About Your Soil</h1>
+      <p class="lead">Upload a clear photo of the soil area (bare ground, not distant landscape or heavy shade). We'll give a quick visual estimate and practical suggestions — this is not a substitute for a lab test.</p>
+
+      <div class="uploader">
+        <label class="drop" id="dropzone" tabindex="0">
+          <input type="file" id="fileInput" accept="image/*">
+          <div>
+            <strong>Choose a photo</strong>
+            <div class="info">PNG or JPG. Prefer a close-up (soil filling most of the frame).</div>
+          </div>
+          <div style="margin-left:auto"><button class="btn" id="chooseBtn" type="button">Browse</button></div>
+        </label>
+
+        <div class="preview" id="preview">
+          <div style="text-align:center;color:var(--muted)">
+            <div style="font-size:40px;">🌱</div>
+            <div style="margin-top:8px">Your Photo Preview</div>
+            <div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.3)">No photo selected</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn" id="analyzeBtn" disabled>Analyze Photo</button>
+          <button class="secondary" id="clearBtn">Clear</button>
+          <div style="margin-left:auto" class="footer-note">Tip: take photo in daylight, remove big stones or plants for best result.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;color:var(--muted);font-size:13px">
+        <strong>How it works:</strong>
+        <div>We sample pixels from the center area of the photo to estimate color and brightness. From that visual cue we produce a friendly suggestion — for exact results, do a soil lab / test kit.</div>
+      </div>
+    </div>
+
+    <div class="card right">
+      <div class="analysis">
+        <div class="stat">
+          <div style="flex:1">
+            <div class="result-title" id="resultType">No analysis yet</div>
+            <div class="info" id="resultDesc">Upload a photo and click Analyze to get quick suggestions.</div>
+          </div>
+          <div style="text-align:right">
+            <div class="swatch" id="colorSwatch" title="sampled color" style="background:linear-gradient(45deg,#000,#333)"></div>
+          </div>
+        </div>
+
+        <div class="suggest" id="suggestions">
+          <div style="font-weight:700">Suggested next steps</div>
+          <ul id="steps" style="margin:8px 0 0 16px;color:var(--muted)">
+            <li>Upload a photo to begin.</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button class="secondary" id="downloadReport">Copy Report</button>
+          <button class="copybtn" id="copyBtn">Copy Suggestions</button>
+        </div>
+      </div>
+
+      <div style="margin-top:8px" class="analysis">
+        <div style="font-weight:700">Quick metrics</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <div class="tag" id="metricColor">Color: —</div>
+          <div class="tag" id="metricBrightness">Brightness: —</div>
+          <div class="tag" id="metricVegetation">Vegetation: —</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px" class="analysis">
+        <div style="font-weight:700">Notes</div>
+        <div class="info" style="margin-top:8px">Photos are only a visual clue. For pH, nutrients and texture (sand/silt/clay) use a lab test or an at-home soil test kit. Use our suggestions as practical next steps: compost, drainage fixes, or lab testing.</div>
+      </div>
+    </div>
+
+    <footer>Made with care — visual soil estimator (demo). Not a replacement for lab testing.</footer>
+  </div>
+
+  <!-- Hidden canvas for analysis -->
+  <canvas id="hiddenCanvas" style="display:none"></canvas>
+
+  <div id="cropPopup" style="
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: none; align-items: center; justify-content: center; z-index: 1000;">
+  <div style="background: #0b1220; padding: 24px; border-radius: 12px;
+              max-width: 400px; text-align: center; color: #e6eef8;
+              box-shadow: 0 8px 30px rgba(0,0,0,0.6);">
+    <h2 style="margin:0 0 12px;font-size:20px;color:#7dd3fc;">🌾 Suggested Crops</h2>
+    <p id="cropList" style="font-size:15px;line-height:1.5;margin-bottom:18px;">
+      Loading suggestions...
+    </p>
+    <p id="countdown" style="font-size:14px;color:#9ca3af;margin-top:10px;"></p>
+    <button id="closePopup" style="background:#10b981;color:#fff;border:none;
+            padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;">
+      Close
+    </button>
+  </div>
+</div>
+
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const chooseBtn = document.getElementById('chooseBtn');
+    const preview = document.getElementById('preview');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resultType = document.getElementById('resultType');
+    const resultDesc = document.getElementById('resultDesc');
+    const suggestions = document.getElementById('suggestions');
+    const steps = document.getElementById('steps');
+    const colorSwatch = document.getElementById('colorSwatch');
+    const metricColor = document.getElementById('metricColor');
+    const metricBrightness = document.getElementById('metricBrightness');
+    const metricVegetation = document.getElementById('metricVegetation');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadReport = document.getElementById('downloadReport');
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
+
+    let currentImage = null;
+
+    chooseBtn.addEventListener('click', ()=> fileInput.click());
+    preview.addEventListener('click', ()=> fileInput.click());
+
+    fileInput.addEventListener('change', e=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const url = URL.createObjectURL(f);
+      showPreview(url);
+      analyzeBtn.disabled = false;
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      fileInput.value = '';
+      preview.innerHTML = `<div style="text-align:center;color:var(--muted)"><div style="font-size:40px;">🌱</div><div style="margin-top:8px">Your Photo Preview</div><div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.3)">No photo selected</div></div>`;
+      analyzeBtn.disabled = true;
+      currentImage = null;
+      resetResults();
+    });
+
+    function showPreview(url){
+      preview.innerHTML = '';
+      const img = new Image();
+      img.src = url;
+      img.alt = 'Uploaded soil photo';
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.onload = ()=>{
+        preview.appendChild(img);
+        currentImage = img;
+      }
+    }
+
+    analyzeBtn.addEventListener('click', ()=>{
+      if(!currentImage) return alert('Please upload a photo first.');
+      analyzeImage(currentImage);
+    });
+
+    function resetResults(){
+      resultType.textContent = 'No analysis yet';
+      resultDesc.textContent = 'Upload a photo and click Analyze to get quick suggestions.';
+      steps.innerHTML = '<li>Upload a photo to begin.</li>';
+      colorSwatch.style.background = 'linear-gradient(45deg,#000,#333)';
+      metricColor.textContent = 'Color: —';
+      metricBrightness.textContent = 'Brightness: —';
+      metricVegetation.textContent = 'Vegetation: —';
+    }
+
+    function analyzeImage(img){
+      // sample central region of the image on a canvas
+      const w = Math.min(img.naturalWidth, 600);
+      const h = Math.min(img.naturalHeight, 600);
+      hiddenCanvas.width = w;
+      hiddenCanvas.height = h;
+      const ctx = hiddenCanvas.getContext('2d');
+      // draw scaled to fit
+      ctx.drawImage(img, 0, 0, w, h);
+
+      // sample a centered box (40% of shorter dimension)
+      const boxSize = Math.floor(Math.min(w,h) * 0.4);
+      const startX = Math.floor((w - boxSize)/2);
+      const startY = Math.floor((h - boxSize)/2);
+
+      const imageData = ctx.getImageData(startX, startY, boxSize, boxSize).data;
+      let r=0,g=0,b=0,count=0,nonTransparent=0;
+      for(let i=0;i<imageData.length;i+=4){
+        const alpha = imageData[i+3];
+        if(alpha < 30) continue; // ignore almost-transparent
+        r += imageData[i]; g += imageData[i+1]; b += imageData[i+2];
+        nonTransparent++;
+        count++;
+      }
+      if(nonTransparent===0){ alert('Could not read pixels from the image. Try a different photo.'); return; }
+      r=Math.round(r/nonTransparent); g=Math.round(g/nonTransparent); b=Math.round(b/nonTransparent);
+
+      // compute brightness and vegetation index (simple)
+      const brightness = Math.round((r+g+b)/3);
+      // normalized green excess relative to red+blue
+      const vegIndex = ((g - (r + b)/2) / 255).toFixed(2);
+
+      // map to a simple color label
+      const rgbStr = `rgb(${r}, ${g}, ${b})`;
+      colorSwatch.style.background = rgbStr;
+      metricColor.textContent = `Color: ${rgbToName(r,g,b)}`;
+      metricBrightness.textContent = `Brightness: ${brightness}`;
+      metricVegetation.textContent = `Vegetation: ${vegIndex > 0.08 ? 'Likely present' : 'Not obvious'}`;
+
+      // heuristics for soil type (visual only)
+      const suggestionsList = [];
+      let soilGuess = 'Unknown soil (visual)';
+      if(vegIndex > 0.08){
+        soilGuess = 'Photo contains vegetation — not bare soil';
+        resultDesc.textContent = 'Your photo shows significant plant material. For best analysis, please take a clear close-up of bare soil (no grass/leaves) and try again.';
+        suggestionsList.push('Take a close-up photo of bare soil (no large plants or leaves).');
+        suggestionsList.push('If you want plant health advice, try a dedicated plant photo instead.');
+      } else {
+        // use brightness and brownness to guess sandy vs loam vs clay
+        // convert to HSL-ish: simple chroma
+        const max = Math.max(r,g,b), min = Math.min(r,g,b);
+        const chroma = max - min;
+        const isBrown = (r > 90 && g > 60 && b < 80 && r - b > 20);
+        if(brightness > 180 && isBrown){
+          soilGuess = 'Light, sandy-looking soil (visual)';
+          suggestionsList.push('Sandy soils drain quickly and hold fewer nutrients. Add organic matter (compost) to improve water and nutrient retention.');
+          suggestionsList.push('Mulch to reduce moisture loss and erosion.');
+          suggestionsList.push('Consider slow-release fertilizers and regular compost top-dressing.');
+        } else if(brightness > 120 && chroma < 40 && r<140 && g<140 && b<140){
+          soilGuess = 'Loamy/neutral-looking soil (visual)';
+          suggestionsList.push('Looks balanced — good candidate for many crops. Maintain with regular compost and cover crops.');
+          suggestionsList.push('If planting vegetables, keep pH test handy (target 6.0–7.0 for most crops).');
+        } else if(brightness <= 120){
+          soilGuess = 'Dark, clay-like or organic-rich soil (visual)';
+          suggestionsList.push('Dark soils often hold more water and organic matter. Improve drainage if waterlogging occurs.');
+          suggestionsList.push('If heavy clay, add gypsum and lots of compost and avoid working when too wet.');
+        } else {
+          soilGuess = 'Mixed/uncertain soil (visual)';
+          suggestionsList.push('Photo colors are ambiguous — consider taking another photo in daylight, closer to the ground.');
+          suggestionsList.push('Perform a simple texture test: wet a small sample and rub between fingers to feel for sandiness vs smoothness.');
+        }
+
+        // everywhere recommend lab/test kit
+        suggestionsList.push('For accurate pH and nutrients (N-P-K), use a lab test or at-home soil test kit.');
+      }
+
+      resultType.textContent = soilGuess;
+      // fill steps
+      steps.innerHTML = '';
+      suggestionsList.forEach(s => {
+        const li = document.createElement('li'); li.textContent = s; steps.appendChild(li);
+      });
+
+      // detailed textual description
+      if(vegIndex > 0.08){
+        resultDesc.textContent = 'Photo shows vegetation — try a bare-soil close-up for a better visual estimate.';
+      } else {
+        resultDesc.textContent = 'This is a quick visual estimate based on color and brightness of the central area of the photo.';
+      }
+    }
+
+    function rgbToName(r,g,b){
+      // simple mapping to descriptive color
+      if(r>150 && g>120 && b<110) return 'light brown';
+      if(r>110 && g>80 && b<90) return 'brown';
+      if(r<80 && g<80 && b<80) return 'very dark';
+      if(r>200 && g>200 && b>200) return 'very light';
+      if(g>r && g>b) return 'greenish';
+      return 'brownish';
+    }
+
+    copyBtn.addEventListener('click', ()=>{
+      const title = resultType.textContent;
+      const desc = resultDesc.textContent;
+      const list = Array.from(steps.children).map(li => '- ' + li.textContent).join('\n');
+      const txt = `Soil Visual Report:\n${title}\n${desc}\n\nSuggestions:\n${list}`;
+      navigator.clipboard.writeText(txt).then(()=>{
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=> copyBtn.textContent = 'Copy Suggestions', 1800);
+      }).catch(()=> alert('Could not copy to clipboard.'));
+    });
+
+    downloadReport.addEventListener('click', ()=>{
+      const title = resultType.textContent;
+      const desc = resultDesc.textContent;
+      const list = Array.from(steps.children).map(li => '- ' + li.textContent).join('\n');
+      const txt = `Soil Visual Report:\n${title}\n${desc}\n\nSuggestions:\n${list}`;
+      // create a blob and download
+      const blob = new Blob([txt], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'soil-visual-report.txt';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // drag & drop support
+    const dropzone = document.getElementById('dropzone');
+    ['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.style.borderColor='rgba(125,211,252,0.5)'}));
+    ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.style.borderColor='rgba(255,255,255,0.04)'}));
+    dropzone.addEventListener('drop', e=>{
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(!f) return;
+      fileInput.files = e.dataTransfer.files;
+      const url = URL.createObjectURL(f);
+      showPreview(url);
+      analyzeBtn.disabled = false;
+    });
+
+    // initial reset
+    resetResults();
+
+
+    // Popup elements
+const cropPopup = document.getElementById('cropPopup');
+const cropList = document.getElementById('cropList');
+const closePopup = document.getElementById('closePopup');
+
+// Available crops
+const crops = ["Wheat", "Rice", "Bajra", "Corn"];
+
+// Show popup with random crops
+function showCropPopup() {
+  // Pick 2–3 random crops
+  const shuffled = crops.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, Math.floor(Math.random() * 2) + 2);
+
+  cropList.innerHTML = "Based on your soil, you can try growing:<br><strong>" + selected.join(", ") + "</strong>";
+  cropPopup.style.display = "flex";
+
+  // Start countdown
+  let seconds = 5;
+  const countdown = document.getElementById("countdown");
+  countdown.textContent = "Redirecting in " + seconds + " seconds...";
+
+  const timer = setInterval(() => {
+    seconds--;
+    countdown.textContent = "Redirecting in " + seconds + " seconds...";
+    if (seconds <= 0) {
+      clearInterval(timer);
+      // Redirect to your desired page
+      window.location.href = "home.html"; 
+    }
+  }, 1000);
+}
+
+// Close popup
+closePopup.addEventListener('click', () => {
+  cropPopup.style.display = "none";
+});
+
+// Trigger popup after analysis
+analyzeBtn.addEventListener('click', () => {
+  if(currentImage) {
+    setTimeout(showCropPopup, 800); // small delay after analysis
+  }
+});
+
+  </script>
+
+  <!-- Crop Suggestion Popup -->
+
+</body>
+</html>

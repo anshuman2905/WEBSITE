@@ -11,15 +11,16 @@
       height: 100%;
       width: 100%;
       font-family: "Poppins", sans-serif;
-      overflow: hidden;
+      overflow-x: hidden; /* allow vertical scroll */
+      overflow-y: auto;
     }
 
     #bg-video {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       z-index: -2;
       opacity: 0;
@@ -174,21 +175,20 @@
       50% { text-shadow: 0 0 15px #ffd700,0 0 25px #ff8c00,0 0 35px #ffa500; }
     }
 
-    /* New Creators Section - Horizontal at the Bottom */
+    /* Creators Section - now scrollable */
     .creators-section {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
+      position: relative;  /* remove fixed bottom */
+      margin-top: 100vh;   /* push below main screen */
+      padding: 40px 20px;
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      justify-content: space-between;
-      /* gap: 2px; */
+      gap: 30px;
       z-index: 2;
     }
 
     .creators-section .member {
       text-align: center;
-      margin: auto;
     }
 
     .creators-section .member img {
@@ -207,6 +207,7 @@
     @media (max-width: 768px) {
       .creators-section {
         flex-direction: column;
+        align-items: center;
         gap: 10px;
       }
 
@@ -245,7 +246,7 @@
     <p class="tagline-hi">डिजिटल प्रगति का प्रवाह</p>
   </div>
 
-  <!-- New Creators Section - Horizontal at the Bottom -->
+  <!-- Creators Section -->
   <div class="creators-section">
     <div class="member">
       <img src="7985980132.jpg" alt="Creator 2">
@@ -269,10 +270,9 @@
 
     <div class="member">
       <img src="9919282210.jpg" alt="Creator 1">
-      <p>Anshuman Rajput- AIML</p>
+      <p>Anshuman Rajput - AIML</p>
     </div>
     
-
     <div class="member">
       <img src="aftab.jpg" alt="Creator 6">
       <p>Aftab Hussain - Designer</p>

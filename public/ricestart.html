@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Text Page</title>
+  <title>Animated Text Page - Rice</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
@@ -21,12 +21,12 @@
 
     .text-container {
       background: rgba(255, 255, 255, 0.95);
-      padding: 60px 80px;
+      padding: 80px 100px;
       border-radius: 25px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.25);
       text-align: center;
-      font-size: 2.5rem;
-      line-height: 2;
+      font-size: 3rem;
+      line-height: 2.5;
       color: #333333;
       transform: scale(0.9);
       animation: popIn 0.8s forwards;
@@ -67,49 +67,50 @@
     }
 
     .button-container {
-      display: none;
-      margin-top: 30px;
+      margin-top: 40px;
+      display: none; /* hidden initially */
       gap: 20px;
-      animation: fadeIn 1s forwards;
     }
 
-    .next-btn {
+    .button-container button {
       padding: 15px 40px;
       font-size: 1.2rem;
-      font-weight: 600;
-      color: #fff;
-      background: linear-gradient(to right, #4da2ca, #a5d956);
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s, background 0.3s;
     }
 
-    .next-btn:hover {
+    .button-container button:hover {
       transform: scale(1.1);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .game-btn {
+      background-color: #ff6f61;
+      color: white;
+    }
+
+    .quiz-btn {
+      background-color: #4da2ca;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <div class="text-container" id="animatedText"></div>
+  <div class="text-container" id="animatedText">
+    <!-- Words will be injected here -->
+  </div>
 
-  <div class="button-container" id="buttonContainer">
-    <button class="next-btn" onclick="window.location.href='rice.html'">Explore Farm🌾</button>
-    <button class="next-btn" onclick="window.location.href='rice_game.html'">Yield  Predictor🌿</button>
+  <div class="button-container" id="buttons">
+    <button class="game-btn" onclick="location.href='rice.html'">Explore Farm</button>
+    <button class="quiz-btn" onclick="location.href='quizrice.html'">Start Quiz</button>
   </div>
 
   <script>
     const text = "Let's try it virtually first before the fields. Here is your Rice Farm. Let's go!";
-    const highlights = ["virtually", "fields", "Rice Farm"];
+    const highlights = ["virtually first", "fields", "Rice Farm"];
     const container = document.getElementById('animatedText');
-    const buttonContainer = document.getElementById('buttonContainer');
+    const buttons = document.getElementById('buttons');
 
     let delay = 0;
     text.split(' ').forEach(word => {
@@ -119,20 +120,20 @@
 
       // Highlight key words
       highlights.forEach(h => {
-        if (h.toLowerCase().includes(word.replace(/[.,!]/g, '').toLowerCase())) {
+        if (h.includes(word.replace(/[.,!]/g, ''))) {
           span.classList.add('highlight');
         }
       });
 
       span.style.animationDelay = `${delay}s`;
-      delay += 0.15; // faster animation speed
+      delay += 0.1;
       container.appendChild(span);
     });
 
-    // Show buttons after animation finishes
-    const totalAnimationTime = delay + 0.5;
+    // Show buttons after all words animated
+    const totalAnimationTime = delay + 0.5; // buffer
     setTimeout(() => {
-      buttonContainer.style.display = "flex";
+      buttons.style.display = 'flex';
     }, totalAnimationTime * 1000);
   </script>
 </body>
